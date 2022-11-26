@@ -89,7 +89,8 @@ interface BilibiliApi {
         @Field("aid") aid: String,
         @Field("cid") cid: Long,
         @Field("csrf") csrf: String,
-        @Field("progress") progress: Long
+        @Field("progress") progress: Long,
+        @Field("platform") platform: String = "android"
     ): CommonDataResponse<Unit>
 
     companion object {

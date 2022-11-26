@@ -161,17 +161,7 @@ class LbVideoPlaybackFragment(
             buildMediaSourceAndPlay()
             exoPlayer!!.seekTo(pos)
         }.apply {
-            this.onCancel(object : DialogInterface {
-                override fun cancel() {
-                    exoPlayerGlue?.play()
-                }
-
-                override fun dismiss() {
-                }
-
-            })
-
-            showNow(requireActivity().supportFragmentManager, "")
+            showNow(this@LbVideoPlaybackFragment.requireActivity().supportFragmentManager, "")
         }
     }
 
