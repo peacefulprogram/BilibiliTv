@@ -93,6 +93,24 @@ interface BilibiliApi {
         @Field("platform") platform: String = "android"
     ): CommonDataResponse<Unit>
 
+    /**
+     * 获取播放历史记录
+     *
+     * @param max 第一页为0
+     * @param viewAt 第一页为0
+     * @param business archive:视频,live:直播
+     * @param type 与business保持一致
+     * @param pageSize 分页大小,默认20,最大30
+     */
+    @GET("/x/web-interface/history/cursor")
+    suspend fun getHistory(
+        @Query("max") max: Int,
+        @Query("view_at") viewAt: Int,
+        @Query("business") business: String,
+        @Query("type") type: String? = null,
+        @Query("ps") pageSize: Int = 20
+    ): CommonDataResponse<HistoryResponse>
+
     companion object {
         const val BASE_URL = "https://api.bilibili.com"
     }

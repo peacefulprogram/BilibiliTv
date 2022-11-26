@@ -16,34 +16,29 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import coil.load
 import coil.transform.RoundedCornersTransformation
-import com.google.android.material.tabs.TabLayout
 import com.jing.bilibilitv.R
-import com.jing.bilibilitv.databinding.VideoCardLbLayoutBinding
-import com.jing.bilibilitv.http.data.DynamicItem
-import com.jing.bilibilitv.model.DynamicViewModel
-import com.jing.bilibilitv.playback.VideoPlayActivity
+import com.jing.bilibilitv.databinding.HistoryCardLbLayoutBinding
+import com.jing.bilibilitv.ext.secondsToDuration
+import com.jing.bilibilitv.http.data.HistoryItem
+import com.jing.bilibilitv.model.VideoHistoryViewModel
 import com.jing.bilibilitv.presenter.CustomGridViewPresenter
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-class LeanbackDynamicFragment(private val getSelectTabView: () -> View? = { null }) :
+class VideoHistoryFragment(private val getSelectTabView: () -> View? = { null }) :
     VerticalGridSupportFragment(), IRefreshableFragment {
 
-    private val viewModel by activityViewModels<DynamicViewModel>()
+    private val viewModel by activityViewModels<VideoHistoryViewModel>()
 
-    private var pagingAdapter: PagingDataAdapter<DynamicItem>? = null
+    private var pagingAdapter: PagingDataAdapter<HistoryItem>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (pagingAdapter == null) {
-            pagingAdapter = PagingDataAdapter(DynamicItemPresenter(), DynamicComparator)
+            pagingAdapter = PagingDataAdapter(VideoHistoryPresenter(), VideoHistoryDiff)
         }
-//        pagingAdapter!!.addLoadStateListener {
-//        }
-        adapter = pagingAdapter
         gridPresenter =
             CustomGridViewPresenter(
                 FocusHighlight.ZOOM_FACTOR_NONE,
@@ -52,6 +47,7 @@ class LeanbackDynamicFragment(private val getSelectTabView: () -> View? = { null
             ).apply {
                 numberOfColumns = 4
             }
+        adapter = pagingAdapter
         progressBarManager.enableProgressBar()
         progressBarManager.initialDelay = 0
     }
@@ -69,14 +65,13 @@ class LeanbackDynamicFragment(private val getSelectTabView: () -> View? = { null
 
         }
         onItemViewClickedListener =
-            OnItemViewClickedListener { itemViewHolder, item, rowViewHolder, row ->
-                with(item as DynamicItem) {
-                    val archive = this.modules.moduleDynamic.major!!.archive!!
+            OnItemViewClickedListener { _, item, _, _ ->
+                with(item as HistoryItem) {
                     findNavController().navigate(
                         HomeFragmentDirections.actionHomeFragmentToVideoPlayActivity(
-                            archive.aid,
-                            archive.bvid,
-                            archive.title
+                            history.oid.toString(),
+                            history.bvid,
+                            history.part
                         )
                     )
                 }
@@ -84,37 +79,35 @@ class LeanbackDynamicFragment(private val getSelectTabView: () -> View? = { null
 
     }
 
-    private class DynamicViewHolder(val viewBinding: VideoCardLbLayoutBinding) :
+    private class HistoryViewHolder(val viewBinding: HistoryCardLbLayoutBinding) :
         Presenter.ViewHolder(viewBinding.root)
 
-    private object DynamicComparator : DiffUtil.ItemCallback<DynamicItem>() {
-        override fun areItemsTheSame(oldItem: DynamicItem, newItem: DynamicItem): Boolean {
-            return oldItem.idStr == newItem.idStr
+    private object VideoHistoryDiff : DiffUtil.ItemCallback<HistoryItem>() {
+        override fun areItemsTheSame(oldItem: HistoryItem, newItem: HistoryItem): Boolean {
+            return oldItem.history.oid == newItem.history.oid
         }
 
-        override fun areContentsTheSame(oldItem: DynamicItem, newItem: DynamicItem): Boolean {
-            return oldItem.idStr == newItem.idStr
+        override fun areContentsTheSame(oldItem: HistoryItem, newItem: HistoryItem): Boolean {
+            return oldItem.history.oid == newItem.history.oid
         }
     }
 
-    private class DynamicItemPresenter : Presenter() {
+    private class VideoHistoryPresenter : Presenter() {
         override fun onCreateViewHolder(parent: ViewGroup?): ViewHolder {
-            val viewBinding = VideoCardLbLayoutBinding.inflate(
+            val viewBinding = HistoryCardLbLayoutBinding.inflate(
                 LayoutInflater.from(parent!!.context),
                 parent,
                 false
             )
-            return DynamicViewHolder(viewBinding)
+            return HistoryViewHolder(viewBinding)
         }
 
         override fun onBindViewHolder(viewHolder: ViewHolder?, item: Any?) {
-            val viewBinding = (viewHolder as DynamicViewHolder).viewBinding
-            val dynamic = item as DynamicItem
-            val archive = dynamic.modules.moduleDynamic.major!!.archive!!
-            val author = dynamic.modules.moduleAuthor
+            val viewBinding = (viewHolder as HistoryViewHolder).viewBinding
+            val historyItem = item as HistoryItem
             with(viewBinding) {
-                title.text = archive.title
-                cover.load(archive.cover) {
+                title.text = historyItem.title
+                cover.load(historyItem.cover) {
                     transformations(
                         RoundedCornersTransformation(
                             root.context.resources.getDimension(
@@ -134,11 +127,9 @@ class LeanbackDynamicFragment(private val getSelectTabView: () -> View? = { null
                         cover.background = null
                     }
                 }
-                playCount.text = archive.stat.play
-                danmuCount.text = archive.stat.danmaku
-                videoDuration.text = archive.durationText
-                username.text = author.name
-                pubDate.text = author.pubTime
+                videoDuration.text =
+                    historyItem.progress.secondsToDuration() + "/" + historyItem.duration.secondsToDuration()
+                username.text = historyItem.authorName
             }
         }
 
@@ -149,7 +140,7 @@ class LeanbackDynamicFragment(private val getSelectTabView: () -> View? = { null
 
     override fun onRefresh(): Boolean {
         pagingAdapter?.refresh()
-        return false
+        return true
     }
 
 }

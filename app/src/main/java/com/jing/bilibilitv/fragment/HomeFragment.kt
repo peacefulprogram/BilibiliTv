@@ -33,10 +33,13 @@ class HomeFragment : Fragment() {
     private fun getSelectTabview(): View? =
         viewBinding.tabContainer.getTabAt(viewBinding.tabContainer.selectedTabPosition)?.view
 
+    private val defaultSelectTabIndex = 1
+
 
     private val pagerFragmentList by lazy<List<Pair<String, Fragment>>> {
         Log.d(TAG, "create pager fragment: ")
         listOf(
+            Pair("历史", VideoHistoryFragment(this::getSelectTabview)),
             Pair("推荐", LeanbackRecommendationFragment(this::getSelectTabview)),
             Pair("动态", LeanbackDynamicFragment(this::getSelectTabview))
         )
@@ -49,13 +52,12 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         viewBinding = HomeFragmentLayoutBinding.inflate(inflater, container, false)
-        viewBinding.tabContainer.setupWithViewPager(viewBinding.pager)
         if (pagerAdapter == null) {
             pagerAdapter = buildPagerAdapter()
         }
         viewBinding.pager.adapter = pagerAdapter
         if (!hasInit) {
-            viewBinding.tabContainer.getTabAt(0)?.view?.requestFocus()
+            viewBinding.tabContainer.getTabAt(defaultSelectTabIndex)?.view?.requestFocus()
             hasInit = true
         }
         viewBinding.root.setOnKeyListener { _, keyCode, _ ->
@@ -68,7 +70,7 @@ class HomeFragment : Fragment() {
         viewBinding.tabContainer.addOnTabSelectedListener(object : OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 val target = pagerFragmentList[viewBinding.tabContainer.selectedTabPosition].second
-                if (target is IRefreshableFragment) target.onRefresh()
+                if (target is IRefreshableFragment && target.activity != null) target.onRefresh()
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab?) {
@@ -78,7 +80,8 @@ class HomeFragment : Fragment() {
             }
 
         })
-        viewBinding.pager.setOnKeyListener { _, keyCode, event ->
+        viewBinding.tabContainer.setupWithViewPager(viewBinding.pager)
+        viewBinding.pager.setOnKeyListener { _, keyCode, _ ->
             if (keyCode == KeyEvent.KEYCODE_MENU) {
                 viewBinding.tabContainer.run {
                     getTabAt(selectedTabPosition)?.view?.requestFocus()
@@ -89,6 +92,7 @@ class HomeFragment : Fragment() {
             }
 
         }
+        viewBinding.tabContainer.getTabAt(defaultSelectTabIndex)?.select()
         return viewBinding.root
     }
 
