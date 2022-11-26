@@ -74,15 +74,19 @@ class LbVideoPlaybackFragment(
                 viewModel.viewUrlState.collectLatest {
                     if (it is Resource.Success) {
                         onUrlResponse(it.data)
-                        var seekTo = -1
-                        if (it.data.lastPlayTime > 0 && it.data.lastPlayTime / 1000 < it.data.dash!!.duration - 10) {
-                            seekTo = it.data.lastPlayTime / 1000
+                        var seekTo = -1L
+                        var showToast = false
+                        if (playerDelegate.resumePosition > 0) {
+                            seekTo = playerDelegate.resumePosition
+                        } else if (it.data.lastPlayTime > 0 && it.data.lastPlayTime / 1000 < it.data.dash!!.duration - 10) {
+                            seekTo = it.data.lastPlayTime
+                            showToast = true
                         }
                         buildMediaSourceAndPlay(seekTo)
-                        if (seekTo > 0) {
+                        if (showToast) {
                             Toast.makeText(
                                 requireContext(),
-                                "已定位到上次播放位置: ${seekTo.secondsToDuration()}",
+                                "已定位到上次播放位置: ${(seekTo / 1000).secondsToDuration()}",
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
@@ -103,7 +107,7 @@ class LbVideoPlaybackFragment(
         }
     }
 
-    private fun buildMediaSourceAndPlay(seekTo: Int = -1) {
+    private fun buildMediaSourceAndPlay(seekTo: Long = -1) {
         val video = videoList.find { it.id == currentQuality }
         if (video == null) {
             Toast.makeText(requireContext(), "未发现视频", Toast.LENGTH_LONG).show()
@@ -119,7 +123,7 @@ class LbVideoPlaybackFragment(
         exoPlayer!!.setMediaSource(MergingMediaSource(*sources))
         exoPlayer!!.prepare()
         if (seekTo > 0) {
-            exoPlayer!!.seekTo(seekTo.toLong() * 1000)
+            exoPlayer!!.seekTo(seekTo)
         }
         exoPlayer!!.play()
     }
@@ -181,6 +185,9 @@ class LbVideoPlaybackFragment(
 
     override fun onStop() {
         super.onStop()
+        playerDelegate.resumePosition = exoPlayer!!.currentPosition
+        playerDelegate.progress = playerDelegate.resumePosition
+        playerDelegate.pause()
         destroyPlayer()
     }
 

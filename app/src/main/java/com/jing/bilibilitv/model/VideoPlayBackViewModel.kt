@@ -1,5 +1,6 @@
 package com.jing.bilibilitv.model
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jing.bilibilitv.http.api.BilibiliApi
@@ -9,8 +10,8 @@ import com.jing.bilibilitv.resource.Resource
 import com.jing.bilibilitv.room.dao.BlCookieDao
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -18,6 +19,12 @@ class VideoPlayBackViewModel @Inject constructor(
     private val bilibiliApi: BilibiliApi,
     private val blCookieDao: BlCookieDao
 ) : ViewModel() {
+
+    private val TAG = VideoPlayBackViewModel::class.java.simpleName
+
+    init {
+        Log.d(TAG, "view model created")
+    }
 
     private var avid: String? = null
 
@@ -29,12 +36,7 @@ class VideoPlayBackViewModel @Inject constructor(
     private val _videoUrlState: MutableStateFlow<Resource<VideoUrlResponse>> =
         MutableStateFlow(Resource.Loading())
 
-    private val _currentQnState: MutableStateFlow<Int> = MutableStateFlow(-1)
-
     val playerDelegate = VideoPlayerDelegate(viewModelScope, this::uploadVideoProgress)
-
-    private val currentQnState: StateFlow<Int>
-        get() = _currentQnState
 
     val viewUrlState: StateFlow<Resource<VideoUrlResponse>>
         get() = _videoUrlState
@@ -45,10 +47,6 @@ class VideoPlayBackViewModel @Inject constructor(
                 csrfToken = it.cookieValue
             }
         }
-    }
-
-    suspend fun changeCurrentQn(qn: Int) {
-        _currentQnState.emit(qn)
     }
 
     fun loadVideoUrl(avid: String?, bvid: String?) {
@@ -96,20 +94,12 @@ class VideoPlayerDelegate(
     private val uploadProgress: suspend (Long) -> Unit = {}
 ) {
 
+    var resumePosition: Long = -1L
     var progress: Long = 0
 
     private var uploadProgressJob: Job? = null
 
     var isPlaying = false
-
-    private fun runInScope(
-        dispatcher: CoroutineDispatcher = Dispatchers.Default,
-        func: suspend () -> Unit
-    ) {
-        scope.launch(dispatcher) {
-            func()
-        }
-    }
 
     fun updateProgress(progress: Long) {
         this.progress = progress

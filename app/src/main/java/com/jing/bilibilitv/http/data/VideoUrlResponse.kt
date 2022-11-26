@@ -18,9 +18,9 @@ data class VideoUrlResponse(
     @SerializedName("high_format")
     val highFormat: Any?,
     @SerializedName("last_play_cid")
-    val lastPlayCid: Int,
+    val lastPlayCid: Long,
     @SerializedName("last_play_time")
-    val lastPlayTime: Int,
+    val lastPlayTime: Long,
     @SerializedName("message")
     val message: String,
     @SerializedName("quality")
