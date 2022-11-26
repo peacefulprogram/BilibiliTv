@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <stroke android:color="@color/rose300" android:width="3dp"/>
+    <corners android:radius="@dimen/video_card_radius"/>
+    <padding android:top="3dp" android:right="3dp" android:left="3dp" android:bottom="3dp"/>
+</shape>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph.xml"
+    app:startDestination="@id/splashFragment">
+
+    <fragment
+        android:id="@+id/splashFragment"
+        android:name="com.jing.bilibilitv.fragment.SplashFragment"
+        android:label="SplashFragment" >
+        <action
+            android:id="@+id/action_splashFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+        <action
+            android:id="@+id/action_splashFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.jing.bilibilitv.fragment.LoginFragment"
+        android:label="LoginFragment" >
+        <action
+            android:id="@+id/action_loginFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.jing.bilibilitv.fragment.HomeFragment"
+        android:label="HomeFragment" >
+        <action
+            android:id="@+id/action_homeFragment_to_videoPlayActivity"
+            app:destination="@id/videoPlayActivity" />
+    </fragment>
+    <activity
+        android:id="@+id/videoPlayActivity"
+        android:name="com.jing.bilibilitv.playback.VideoPlayActivity"
+        android:label="VideoPlayActivity" >
+        <argument android:name="avid"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="bvid"
+            app:argType="string"
+            app:nullable="true" />
+        <argument android:name="title"
+            app:argType="string" />
+    </activity>
+</navigation>

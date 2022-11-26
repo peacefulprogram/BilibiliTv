@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:focusable="true">
+
+    <ImageView
+        android:id="@+id/cover"
+        android:layout_width="@dimen/video_preview_card_width"
+        android:layout_height="@dimen/video_preview_card_height"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:maxLines="2"
+        android:text="title"
+        android:textColor="@color/gray50"
+        app:layout_constraintEnd_toEndOf="@+id/cover"
+        app:layout_constraintLeft_toLeftOf="@id/cover"
+        app:layout_constraintRight_toRightOf="@id/cover"
+        app:layout_constraintStart_toStartOf="@+id/cover"
+        app:layout_constraintTop_toBottomOf="@id/cover" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout"
+        android:layout_width="0dp"
+        android:layout_height="30dp"
+        android:background="@drawable/video_card_bt_stat_bg"
+        app:layout_constraintBottom_toBottomOf="@id/cover"
+        app:layout_constraintLeft_toLeftOf="@id/cover"
+        app:layout_constraintRight_toRightOf="@id/cover">
+
+        <ImageView
+            android:id="@+id/play_count_icon"
+            android:layout_width="@dimen/video_card_icon_size"
+            android:layout_height="@dimen/video_card_icon_size"
+            android:layout_marginBottom="5dp"
+            android:src="@drawable/play_count"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent" />
+
+        <TextView
+            android:id="@+id/play_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="100"
+            android:textColor="@color/gray50"
+            app:layout_constraintBottom_toBottomOf="@id/play_count_icon"
+            app:layout_constraintLeft_toRightOf="@id/play_count_icon" />
+
+        <ImageView
+            android:id="@+id/danmu_count_icon"
+            android:layout_width="@dimen/video_card_icon_size"
+            android:layout_height="@dimen/video_card_icon_size"
+            android:layout_marginLeft="5dp"
+            android:src="@drawable/danmu_count"
+            app:layout_constraintBottom_toBottomOf="@id/play_count_icon"
+            app:layout_constraintLeft_toRightOf="@id/play_count" />
+
+        <TextView
+            android:id="@+id/danmu_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="100"
+            android:textColor="@color/gray50"
+            app:layout_constraintBottom_toBottomOf="@id/play_count_icon"
+            app:layout_constraintLeft_toRightOf="@id/danmu_count_icon" />
+
+        <TextView
+            android:id="@+id/video_duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="12:00"
+            android:textColor="@color/gray50"
+            app:layout_constraintBottom_toBottomOf="@id/play_count_icon"
+            app:layout_constraintRight_toRightOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <ImageView
+        android:id="@+id/up_icon"
+        android:layout_width="@dimen/video_card_icon_size"
+        android:layout_height="@dimen/video_card_icon_size"
+        android:layout_marginTop="55dp"
+        android:src="@drawable/upzhu"
+        app:layout_constraintLeft_toLeftOf="@id/cover"
+        app:layout_constraintTop_toBottomOf="@id/cover" />
+
+    <TextView
+        android:id="@+id/username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/gray50"
+        app:layout_constraintLeft_toRightOf="@id/up_icon"
+        app:layout_constraintTop_toTopOf="@id/up_icon" />
+
+    <TextView
+        android:id="@+id/pub_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="10-12"
+        android:textColor="@color/gray50"
+        app:layout_constraintRight_toRightOf="@id/cover"
+        app:layout_constraintTop_toTopOf="@id/up_icon" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="video_preview_card_width">200dp</dimen>
+    <dimen name="video_preview_card_height">127dp</dimen>
+    <dimen name="video_card_radius">5dp</dimen>
+    <dimen name="video_card_icon_size">20dp</dimen>
+</resources>
