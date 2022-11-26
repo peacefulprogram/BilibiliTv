@@ -19,12 +19,10 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import coil.load
 import coil.transform.RoundedCornersTransformation
-import com.google.android.material.tabs.TabLayout
 import com.jing.bilibilitv.R
 import com.jing.bilibilitv.databinding.VideoCardLbLayoutBinding
 import com.jing.bilibilitv.http.data.DynamicItem
 import com.jing.bilibilitv.model.DynamicViewModel
-import com.jing.bilibilitv.playback.VideoPlayActivity
 import com.jing.bilibilitv.presenter.CustomGridViewPresenter
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -93,7 +91,12 @@ class LeanbackDynamicFragment(private val getSelectTabView: () -> View? = { null
         }
 
         override fun areContentsTheSame(oldItem: DynamicItem, newItem: DynamicItem): Boolean {
+            val oldArchive = oldItem.modules.moduleDynamic.major!!.archive!!
+            val newArchive = newItem.modules.moduleDynamic.major!!.archive!!
             return oldItem.idStr == newItem.idStr
+                    && oldArchive.stat.play == newArchive.stat.play
+                    && oldArchive.stat.danmaku == newArchive.stat.danmaku
+                    && oldItem.modules.moduleAuthor.pubTime == newItem.modules.moduleAuthor.pubTime
         }
     }
 

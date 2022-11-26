@@ -89,6 +89,7 @@ class VideoHistoryFragment(private val getSelectTabView: () -> View? = { null })
 
         override fun areContentsTheSame(oldItem: HistoryItem, newItem: HistoryItem): Boolean {
             return oldItem.history.oid == newItem.history.oid
+                    && oldItem.progress == newItem.progress
         }
     }
 
