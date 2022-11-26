@@ -1,6 +1,5 @@
 package com.jing.bilibilitv.fragment
 
-import android.content.DialogInterface
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -18,6 +17,7 @@ import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSource
 import com.google.android.exoplayer2.source.MergingMediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.jing.bilibilitv.dialog.ChooseVideoQualityDialog
+import com.jing.bilibilitv.ext.secondsToDuration
 import com.jing.bilibilitv.http.data.VideoUrlAudio
 import com.jing.bilibilitv.http.data.VideoUrlResponse
 import com.jing.bilibilitv.http.data.VideoUrlVideo
@@ -74,7 +74,18 @@ class LbVideoPlaybackFragment(
                 viewModel.viewUrlState.collectLatest {
                     if (it is Resource.Success) {
                         onUrlResponse(it.data)
-                        buildMediaSourceAndPlay()
+                        var seekTo = -1
+                        if (it.data.lastPlayTime > 0 && it.data.lastPlayTime / 1000 < it.data.dash!!.duration - 10) {
+                            seekTo = it.data.lastPlayTime / 1000
+                        }
+                        buildMediaSourceAndPlay(seekTo)
+                        if (seekTo > 0) {
+                            Toast.makeText(
+                                requireContext(),
+                                "已定位到上次播放位置: ${seekTo.secondsToDuration()}",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     }
                 }
             }
@@ -92,7 +103,7 @@ class LbVideoPlaybackFragment(
         }
     }
 
-    private fun buildMediaSourceAndPlay() {
+    private fun buildMediaSourceAndPlay(seekTo: Int = -1) {
         val video = videoList.find { it.id == currentQuality }
         if (video == null) {
             Toast.makeText(requireContext(), "未发现视频", Toast.LENGTH_LONG).show()
@@ -107,6 +118,9 @@ class LbVideoPlaybackFragment(
         )
         exoPlayer!!.setMediaSource(MergingMediaSource(*sources))
         exoPlayer!!.prepare()
+        if (seekTo > 0) {
+            exoPlayer!!.seekTo(seekTo.toLong() * 1000)
+        }
         exoPlayer!!.play()
     }
 
