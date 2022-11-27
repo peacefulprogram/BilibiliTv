@@ -16,11 +16,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import coil.load
 import coil.transform.RoundedCornersTransformation
 import com.jing.bilibilitv.R
 import com.jing.bilibilitv.databinding.VideoCardLbLayoutBinding
+import com.jing.bilibilitv.home.getHomeGridViewKeyInterceptor
 import com.jing.bilibilitv.http.data.DynamicItem
 import com.jing.bilibilitv.model.DynamicViewModel
 import com.jing.bilibilitv.presenter.CustomGridViewPresenter
@@ -28,7 +28,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class LeanbackDynamicFragment(private val getSelectTabView: () -> View? = { null }) :
-    VerticalGridSupportFragment(), IRefreshableFragment {
+    VerticalGridSupportFragment(), IVPShowAwareFragment, IRefreshableFragment {
 
     private val viewModel by activityViewModels<DynamicViewModel>()
 
@@ -39,14 +39,16 @@ class LeanbackDynamicFragment(private val getSelectTabView: () -> View? = { null
         if (pagingAdapter == null) {
             pagingAdapter = PagingDataAdapter(DynamicItemPresenter(), DynamicComparator)
         }
-//        pagingAdapter!!.addLoadStateListener {
-//        }
         adapter = pagingAdapter
         gridPresenter =
             CustomGridViewPresenter(
-                FocusHighlight.ZOOM_FACTOR_NONE,
-                false,
-                getSelectTabView
+                focusZoomFactor = FocusHighlight.ZOOM_FACTOR_NONE,
+                useFocusDimmer = false,
+                getSelectedTabView = getSelectTabView,
+                keyEventInterceptor = getHomeGridViewKeyInterceptor(
+                    getSelectedTabView = getSelectTabView,
+                    refreshData = this::onVPShow
+                )
             ).apply {
                 numberOfColumns = 4
             }
@@ -150,9 +152,16 @@ class LeanbackDynamicFragment(private val getSelectTabView: () -> View? = { null
 
     }
 
-    override fun onRefresh(): Boolean {
+    private fun refreshData() {
         pagingAdapter?.refresh()
-        return false
+    }
+
+    override fun onVPShow() {
+        refreshData()
+    }
+
+    override fun doRefresh() {
+        refreshData()
     }
 
 }

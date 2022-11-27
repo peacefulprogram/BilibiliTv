@@ -19,9 +19,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
 
-    private var hasInit = false
-
-    private val TAG = "HomeFragment"
+    private val TAG = HomeFragment::class.java.simpleName
 
     private var pagerAdapter: PagerAdapter? = null
 
@@ -56,21 +54,10 @@ class HomeFragment : Fragment() {
             pagerAdapter = buildPagerAdapter()
         }
         viewBinding.pager.adapter = pagerAdapter
-        if (!hasInit) {
-            viewBinding.tabContainer.getTabAt(defaultSelectTabIndex)?.view?.requestFocus()
-            hasInit = true
-        }
-        viewBinding.root.setOnKeyListener { _, keyCode, _ ->
-            if (keyCode == KeyEvent.KEYCODE_MENU) {
-                val target = pagerFragmentList[viewBinding.tabContainer.selectedTabPosition].second
-                if (target is IRefreshableFragment) target.onRefresh() else false
-            }
-            false
-        }
         viewBinding.tabContainer.addOnTabSelectedListener(object : OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 val target = pagerFragmentList[viewBinding.tabContainer.selectedTabPosition].second
-                if (target is IRefreshableFragment && target.activity != null) target.onRefresh()
+                if (target is IVPShowAwareFragment && target.activity != null) target.onVPShow()
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab?) {
@@ -80,18 +67,18 @@ class HomeFragment : Fragment() {
             }
 
         })
-        viewBinding.tabContainer.setupWithViewPager(viewBinding.pager)
-        viewBinding.pager.setOnKeyListener { _, keyCode, _ ->
-            if (keyCode == KeyEvent.KEYCODE_MENU) {
-                viewBinding.tabContainer.run {
-                    getTabAt(selectedTabPosition)?.view?.requestFocus()
+        viewBinding.tabContainer.addOnUnhandledKeyEventListener { _, event ->
+            var result = false
+            if (event.keyCode == KeyEvent.KEYCODE_MENU) {
+                val target = pagerFragmentList[viewBinding.tabContainer.selectedTabPosition].second
+                if (target is IRefreshableFragment && target.activity != null) {
+                    target.doRefresh()
+                    result = true
                 }
-                true
-            } else {
-                false
             }
-
+            result
         }
+        viewBinding.tabContainer.setupWithViewPager(viewBinding.pager)
         viewBinding.tabContainer.getTabAt(defaultSelectTabIndex)?.select()
         return viewBinding.root
     }

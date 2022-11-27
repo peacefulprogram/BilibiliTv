@@ -1,19 +1,23 @@
 package com.jing.bilibilitv.presenter
 
-import android.util.Log
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.leanback.widget.VerticalGridPresenter
+import androidx.leanback.widget.VerticalGridView
 import com.jing.bilibilitv.CustomGridView
 import com.jing.bilibilitv.R
 
 class CustomGridViewPresenter(
     focusZoomFactor: Int,
     useFocusDimmer: Boolean,
-    private val getSelectedTabView: () -> View? = { null }
+    private val getSelectedTabView: () -> View? = { null },
+    private val keyEventInterceptor: (keyEvent: KeyEvent, gridView: VerticalGridView) -> Boolean = { _, _ -> false }
 ) :
     VerticalGridPresenter(focusZoomFactor, useFocusDimmer) {
+
+    private val TAG = CustomGridViewPresenter::class.java.simpleName
 
     /**
      * 改为自定义grid view
@@ -23,6 +27,9 @@ class CustomGridViewPresenter(
             .inflate(R.layout.custom_lb_grid_view_layout, parent, false) as CustomGridView
         gridView.findSelectedTabView = {
             getSelectedTabView()
+        }
+        gridView.setOnKeyInterceptListener { keyEvent ->
+            keyEventInterceptor(keyEvent, gridView)
         }
         return ViewHolder(gridView)
     }

@@ -21,6 +21,7 @@ import coil.transform.RoundedCornersTransformation
 import com.jing.bilibilitv.R
 import com.jing.bilibilitv.databinding.HistoryCardLbLayoutBinding
 import com.jing.bilibilitv.ext.secondsToDuration
+import com.jing.bilibilitv.home.getHomeGridViewKeyInterceptor
 import com.jing.bilibilitv.http.data.HistoryItem
 import com.jing.bilibilitv.model.VideoHistoryViewModel
 import com.jing.bilibilitv.presenter.CustomGridViewPresenter
@@ -28,7 +29,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class VideoHistoryFragment(private val getSelectTabView: () -> View? = { null }) :
-    VerticalGridSupportFragment(), IRefreshableFragment {
+    VerticalGridSupportFragment(), IVPShowAwareFragment, IRefreshableFragment {
 
     private val viewModel by activityViewModels<VideoHistoryViewModel>()
 
@@ -41,9 +42,13 @@ class VideoHistoryFragment(private val getSelectTabView: () -> View? = { null })
         }
         gridPresenter =
             CustomGridViewPresenter(
-                FocusHighlight.ZOOM_FACTOR_NONE,
-                false,
-                getSelectTabView
+                focusZoomFactor = FocusHighlight.ZOOM_FACTOR_NONE,
+                useFocusDimmer = false,
+                getSelectedTabView = getSelectTabView,
+                keyEventInterceptor = getHomeGridViewKeyInterceptor(
+                    getSelectedTabView = getSelectTabView,
+                    refreshData = this::refreshData
+                )
             ).apply {
                 numberOfColumns = 4
             }
@@ -139,9 +144,15 @@ class VideoHistoryFragment(private val getSelectTabView: () -> View? = { null })
 
     }
 
-    override fun onRefresh(): Boolean {
+    private fun refreshData() {
         pagingAdapter?.refresh()
-        return true
+    }
+
+    override fun onVPShow() {
+    }
+
+    override fun doRefresh() {
+        refreshData()
     }
 
 }

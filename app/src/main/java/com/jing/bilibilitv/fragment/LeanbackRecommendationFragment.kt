@@ -5,10 +5,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.startActivity
 import androidx.fragment.app.activityViewModels
 import androidx.leanback.app.VerticalGridSupportFragment
 import androidx.leanback.widget.ArrayObjectAdapter
+import androidx.leanback.widget.DiffCallback
 import androidx.leanback.widget.FocusHighlight
 import androidx.leanback.widget.Presenter
 import androidx.lifecycle.Lifecycle
@@ -19,9 +19,9 @@ import coil.load
 import coil.transform.RoundedCornersTransformation
 import com.jing.bilibilitv.R
 import com.jing.bilibilitv.databinding.VideoCardLbLayoutBinding
+import com.jing.bilibilitv.home.getHomeGridViewKeyInterceptor
 import com.jing.bilibilitv.http.data.VideoInfo
 import com.jing.bilibilitv.model.RecommendationViewModel
-import com.jing.bilibilitv.playback.VideoPlayActivity
 import com.jing.bilibilitv.presenter.CustomGridViewPresenter
 import com.jing.bilibilitv.resource.Resource
 import kotlinx.coroutines.flow.collectLatest
@@ -32,23 +32,45 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 class LeanbackRecommendationFragment(private val getSelectTabView: () -> View? = { null }) :
-    VerticalGridSupportFragment(), IRefreshableFragment {
+    VerticalGridSupportFragment(), IVPShowAwareFragment, IRefreshableFragment {
 
     private val viewModel by activityViewModels<RecommendationViewModel>()
 
+    private var mAdapter: ArrayObjectAdapter? = null
+
+    private val diffCallback = object : DiffCallback<VideoInfo>() {
+        override fun areItemsTheSame(oldItem: VideoInfo, newItem: VideoInfo): Boolean {
+            return oldItem.id == newItem.id
+        }
+
+        override fun areContentsTheSame(oldItem: VideoInfo, newItem: VideoInfo): Boolean {
+            return oldItem.stat.view == newItem.stat.view
+                    && oldItem.stat.danmuku == newItem.stat.view
+        }
+
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        mAdapter = ArrayObjectAdapter(VideoCardPresenter())
         gridPresenter = CustomGridViewPresenter(
-            FocusHighlight.ZOOM_FACTOR_MEDIUM,
-            false,
-            getSelectTabView
+            focusZoomFactor = FocusHighlight.ZOOM_FACTOR_NONE,
+            useFocusDimmer = false,
+            getSelectedTabView = getSelectTabView,
+            keyEventInterceptor = getHomeGridViewKeyInterceptor(
+                getSelectedTabView = getSelectTabView,
+                refreshData = this::onVPShow
+            )
         ).apply {
             this.numberOfColumns = 4
         }
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         progressBarManager.enableProgressBar()
         progressBarManager.initialDelay = 0
         lifecycleScope.launch {
@@ -67,14 +89,14 @@ class LeanbackRecommendationFragment(private val getSelectTabView: () -> View? =
                 }
             }
         }
+        adapter = mAdapter
+        return super.onCreateView(inflater, container, savedInstanceState)
     }
 
     private fun buildAdapter(videoList: List<VideoInfo>) {
-
-        val adapter = ArrayObjectAdapter(VideoCardPresenter())
-        adapter.addAll(0, videoList)
-        this.adapter = adapter
+        mAdapter?.setItems(videoList, diffCallback)
     }
+
 
     private class VideoCardPresenter : Presenter() {
         override fun onCreateViewHolder(parent: ViewGroup?): ViewHolder {
@@ -151,8 +173,16 @@ class LeanbackRecommendationFragment(private val getSelectTabView: () -> View? =
 
     }
 
-    override fun onRefresh(): Boolean {
+
+    private fun refreshData() {
         viewModel.loadRecommendation()
-        return true
+    }
+
+    override fun onVPShow() {
+        refreshData()
+    }
+
+    override fun doRefresh() {
+        refreshData()
     }
 }
