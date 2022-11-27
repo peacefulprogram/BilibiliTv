@@ -16,7 +16,8 @@
 package com.jing.bilibilitv.playback
 
 import android.content.Context
-import android.widget.Toast
+import android.view.KeyEvent
+import android.view.View
 import androidx.annotation.VisibleForTesting
 import androidx.core.content.ContextCompat
 import androidx.leanback.media.MediaPlayerAdapter
@@ -25,7 +26,6 @@ import androidx.leanback.media.PlayerAdapter
 import androidx.leanback.widget.Action
 import androidx.leanback.widget.ArrayObjectAdapter
 import androidx.leanback.widget.PlaybackControlsRow.FastForwardAction
-import androidx.leanback.widget.PlaybackControlsRow.MultiAction
 import androidx.leanback.widget.PlaybackControlsRow.RewindAction
 import com.google.android.exoplayer2.ext.leanback.LeanbackPlayerAdapter
 import com.jing.bilibilitv.R
@@ -117,10 +117,18 @@ class ProgressTransportControlGlue<T : PlayerAdapter>(
     }
 
 
-    private class QualityAction(private val context: Context) : Action(10) {
+    private class QualityAction(context: Context) : Action(10) {
         init {
             icon = ContextCompat.getDrawable(context, R.drawable.video_quality)
         }
+    }
+
+    override fun onKey(v: View?, keyCode: Int, event: KeyEvent?): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER && playerAdapter.isPlaying && !host.isControlsOverlayVisible) {
+            playerAdapter.pause()
+            return true
+        }
+        return super.onKey(v, keyCode, event)
     }
 
 
