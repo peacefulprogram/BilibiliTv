@@ -97,7 +97,13 @@ class ProgressTransportControlGlue<T : PlayerAdapter>(
             skipBackwardAction -> skipBackward()
             skipForwardAction -> skipForward()
             videoQualityAction -> onChangeQuality()
-            replayAction -> playerAdapter.seekTo(0L)
+            replayAction -> {
+                playerAdapter.seekTo(0L)
+                if (!playerAdapter.isPlaying) {
+                    playerAdapter.play()
+                }
+                host.hideControlsOverlay(false)
+            }
             else -> super.onActionClicked(action)
         }
     }
