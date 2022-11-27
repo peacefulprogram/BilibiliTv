@@ -133,6 +133,7 @@ class VideoPlayerDelegate(
     }
 
     fun pause() {
+        isPlaying = false
         uploadProgressJob?.cancel()
         scope.launch(Dispatchers.Default) {
             uploadProgress(progress)

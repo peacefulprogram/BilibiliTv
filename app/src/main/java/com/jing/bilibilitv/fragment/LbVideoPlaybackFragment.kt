@@ -28,6 +28,7 @@ import com.jing.bilibilitv.model.VideoPlayerDelegate
 import com.jing.bilibilitv.playback.AsyncSeekDataProvider
 import com.jing.bilibilitv.playback.ProgressTransportControlGlue
 import com.jing.bilibilitv.resource.Resource
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
@@ -37,7 +38,7 @@ class LbVideoPlaybackFragment(
     private val bvid: String?,
     private val videoTitle: String,
     private val okHttpClient: OkHttpClient
-) : VideoSupportFragment() {
+) : VideoSupportFragment(), IBackPressAwareFragment {
 
     private val TAG = LbVideoPlaybackFragment::class.java.simpleName
 
@@ -62,6 +63,8 @@ class LbVideoPlaybackFragment(
     private var seekDataProvider: AsyncSeekDataProvider? = null
 
     private var currentQuality: Int = -1
+
+    private var backPressed = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -224,5 +227,23 @@ class LbVideoPlaybackFragment(
             it.release()
             exoPlayer = null
         }
+    }
+
+
+    override fun onBackPressed(): Boolean {
+        if (!playerDelegate.isPlaying) {
+            backPressed = false
+            return false
+        }
+        if (backPressed) {
+            return false
+        }
+        backPressed = true
+        Toast.makeText(requireContext(), "再按一次退出播放", Toast.LENGTH_SHORT).show()
+        lifecycleScope.launch {
+            delay(2000)
+            backPressed = false
+        }
+        return true
     }
 }
