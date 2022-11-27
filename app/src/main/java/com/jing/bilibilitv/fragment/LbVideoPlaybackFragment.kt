@@ -2,9 +2,12 @@ package com.jing.bilibilitv.fragment
 
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
+import androidx.leanback.R
 import androidx.leanback.app.VideoSupportFragment
 import androidx.leanback.app.VideoSupportFragmentGlueHost
 import androidx.lifecycle.Lifecycle
@@ -18,6 +21,9 @@ import com.google.android.exoplayer2.ext.leanback.LeanbackPlayerAdapter
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSource
 import com.google.android.exoplayer2.source.MergingMediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
+import com.jing.bilibilitv.BuildConfig
+import com.jing.bilibilitv.danmaku.VideoDanmakuParser
+import com.jing.bilibilitv.danmaku.proto.DanmakuProto
 import com.jing.bilibilitv.dialog.ChooseVideoQualityDialog
 import com.jing.bilibilitv.ext.secondsToDuration
 import com.jing.bilibilitv.http.data.VideoUrlAudio
@@ -27,10 +33,17 @@ import com.jing.bilibilitv.model.VideoPlayBackViewModel
 import com.jing.bilibilitv.model.VideoPlayerDelegate
 import com.jing.bilibilitv.playback.AsyncSeekDataProvider
 import com.jing.bilibilitv.playback.ProgressTransportControlGlue
+import com.jing.bilibilitv.playback.createDefaultDanmakuContext
 import com.jing.bilibilitv.resource.Resource
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import master.flame.danmaku.controller.DrawHandler
+import master.flame.danmaku.danmaku.model.BaseDanmaku
+import master.flame.danmaku.danmaku.model.DanmakuTimer
+import master.flame.danmaku.danmaku.model.android.DanmakuContext
+import master.flame.danmaku.ui.widget.DanmakuView
 import okhttp3.OkHttpClient
 
 class LbVideoPlaybackFragment(
@@ -66,11 +79,54 @@ class LbVideoPlaybackFragment(
 
     private var backPressed = false
 
+    private var danmakuView: DanmakuView? = null
+
+    private var danmakuContext: DanmakuContext? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel.loadVideoUrl(avid = avid, bvid = bvid)
         viewModel.loadSnapshot(avid = avid, bvid = bvid)
         playerDelegate = viewModel.playerDelegate
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val root = super.onCreateView(inflater, container, savedInstanceState)
+        danmakuView = DanmakuView(requireContext())
+        val playbackRoot = root!!.findViewById<ViewGroup>(R.id.playback_fragment_root)
+        playbackRoot.addView(danmakuView, 1)
+        return root
+    }
+
+    private fun initDanmaku(danmakuElList: List<DanmakuProto.DanmakuElem>) {
+        if (danmakuContext != null) {
+            return
+        }
+        danmakuContext = createDefaultDanmakuContext()
+        danmakuView!!.enableDanmakuDrawingCache(true)
+        danmakuView!!.showFPS(BuildConfig.DEBUG)
+        danmakuView!!.show()
+        danmakuView!!.setCallback(object : DrawHandler.Callback {
+            override fun prepared() {
+                lifecycleScope.launch(Dispatchers.Main) {
+                    if (exoPlayer?.isPlaying == true) {
+                        with(danmakuView!!) {
+                            seekTo(exoPlayer?.currentPosition)
+                            danmakuView?.start()
+                        }
+                    }
+                }
+            }
+
+            override fun updateTimer(danmakuTimer: DanmakuTimer) {}
+            override fun danmakuShown(baseDanmaku: BaseDanmaku) {}
+            override fun drawingFinished() {}
+        })
+        danmakuView?.prepare(VideoDanmakuParser(danmakuElList), danmakuContext)
     }
 
     override fun onStart() {
@@ -118,6 +174,20 @@ class LbVideoPlaybackFragment(
                 }
             }
         }
+
+        lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.danmakuData.collectLatest { it ->
+                    when (it) {
+                        is Resource.Success -> {
+                            Log.d(TAG, "onViewCreated: danma get")
+                            initDanmaku(it.data)
+                        }
+                        else -> {}
+                    }
+                }
+            }
+        }
     }
 
     private fun onUrlResponse(videoUrlResponse: VideoUrlResponse) {
@@ -160,8 +230,10 @@ class LbVideoPlaybackFragment(
                 override fun onIsPlayingChanged(isPlaying: Boolean) {
                     if (isPlaying) {
                         playerDelegate.play()
+                        danmakuView?.start(exoPlayer!!.currentPosition)
                     } else {
                         playerDelegate.pause()
+                        danmakuView?.pause()
                     }
                 }
 
@@ -245,5 +317,12 @@ class LbVideoPlaybackFragment(
             backPressed = false
         }
         return true
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        danmakuView?.release()
+        danmakuView = null
+        danmakuContext = null
     }
 }

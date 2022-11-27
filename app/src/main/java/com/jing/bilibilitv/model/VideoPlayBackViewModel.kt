@@ -3,6 +3,7 @@ package com.jing.bilibilitv.model
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jing.bilibilitv.danmaku.proto.DanmakuProto
 import com.jing.bilibilitv.http.api.BilibiliApi
 import com.jing.bilibilitv.http.cookie.BilibiliCookieName
 import com.jing.bilibilitv.http.data.VideoSnapshotResponse
@@ -34,6 +35,11 @@ class VideoPlayBackViewModel @Inject constructor(
     @Volatile
     private var csrfToken: String? = null
 
+    private var _danmakuData: MutableStateFlow<Resource<List<DanmakuProto.DanmakuElem>>> =
+        MutableStateFlow(Resource.Loading())
+
+    val danmakuData: StateFlow<Resource<List<DanmakuProto.DanmakuElem>>>
+        get() = _danmakuData
 
     private var _snapshotResponse: MutableStateFlow<Resource<VideoSnapshotResponse>> =
         MutableStateFlow(Resource.Loading())
@@ -64,6 +70,9 @@ class VideoPlayBackViewModel @Inject constructor(
                 detailData?.view?.let { detail ->
                     this@VideoPlayBackViewModel.avid = detail.aid.toString()
                     this@VideoPlayBackViewModel.cid = detail.cid
+                    async {
+                        loadDanmaku(detail.cid)
+                    }
                     bilibiliApi.getPlayUrl(
                         detail.aid.toString(),
                         detail.bvid,
@@ -74,6 +83,39 @@ class VideoPlayBackViewModel @Inject constructor(
                 }
             } catch (e: Exception) {
                 _videoUrlState.emit(Resource.Error("加载链接失败:" + e.message))
+            }
+        }
+    }
+
+    private fun loadDanmaku(cid: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _danmakuData.emit(Resource.Loading())
+            try {
+                val reply =
+                    DanmakuProto.DmWebViewReply.parseFrom(bilibiliApi.getVideoDanmaku(cid).bytes())
+                if (reply.hasDmSge()) {
+                    val list = (1..reply.dmSge.total).map { segmentIndex ->
+                        async {
+                            try {
+                                DanmakuProto.DmSegMobileReply.parseFrom(
+                                    bilibiliApi.getVideoDanmakuSegment(
+                                        cid,
+                                        segmentIndex
+                                    ).bytes()
+                                ).elemsList
+                            } catch (e: Exception) {
+                                if (e is CancellationException) {
+                                    throw e
+                                }
+                                emptyList()
+                            }
+                        }
+                    }.awaitAll()
+                        .flatten()
+                    _danmakuData.emit(Resource.Success(list))
+                }
+            } catch (e: Exception) {
+                _danmakuData.emit(Resource.Error(e.message))
             }
         }
     }

@@ -1,6 +1,7 @@
 package com.jing.bilibilitv.http.api
 
 import com.jing.bilibilitv.http.data.*
+import okhttp3.ResponseBody
 import retrofit2.http.*
 
 interface BilibiliApi {
@@ -165,6 +166,20 @@ interface BilibiliApi {
         @Field("multiply") multiply: Int = 2,
         @Field("select_like") selectLike: Int = 1,
     ): CommonDataResponse<GiveCoinResponse>
+
+
+    @GET("/x/v2/dm/web/view")
+    suspend fun getVideoDanmaku(
+        @Query("oid") cid: Long,
+        @Query("type") type: Int = 1
+    ): ResponseBody
+
+    @GET("/x/v2/dm/web/seg.so")
+    suspend fun getVideoDanmakuSegment(
+        @Query("oid") cid: Long,
+        @Query("segment_index") segmentIndex: Long,
+        @Query("type") type: Int = 1,
+    ): ResponseBody
 
     companion object {
         const val BASE_URL = "https://api.bilibili.com"

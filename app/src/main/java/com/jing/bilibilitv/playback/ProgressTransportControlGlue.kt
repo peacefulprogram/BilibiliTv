@@ -76,10 +76,7 @@ class ProgressTransportControlGlue<T : PlayerAdapter>(
     }
 
     override fun onCreatePrimaryActions(primaryActionsAdapter: ArrayObjectAdapter) {
-        // super.onCreatePrimaryActions() will create the play / pause action.
         super.onCreatePrimaryActions(primaryActionsAdapter)
-
-        // Add the rewind and fast forward actions following the play / pause action.
         primaryActionsAdapter.apply {
             add(replayAction)
             add(videoQualityAction)
@@ -92,7 +89,6 @@ class ProgressTransportControlGlue<T : PlayerAdapter>(
     }
 
     override fun onActionClicked(action: Action) {
-        // Primary actions are handled manually. The superclass handles default play/pause action.
         when (action) {
             skipBackwardAction -> skipBackward()
             skipForwardAction -> skipForward()
@@ -130,8 +126,12 @@ class ProgressTransportControlGlue<T : PlayerAdapter>(
     }
 
     override fun onKey(v: View?, keyCode: Int, event: KeyEvent?): Boolean {
-        if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER && playerAdapter.isPlaying && !host.isControlsOverlayVisible) {
-            playerAdapter.pause()
+        if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER && !host.isControlsOverlayVisible) {
+            if (playerAdapter.isPlaying) {
+                playerAdapter.pause()
+            } else {
+                playerAdapter.play()
+            }
             return true
         }
         return super.onKey(v, keyCode, event)

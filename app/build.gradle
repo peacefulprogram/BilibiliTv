@@ -37,10 +37,10 @@ dependencies {
 
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.leanback:leanback:1.0.0'
-    implementation('androidx.leanback:leanback-paging:1.1.0-alpha09'){
+    implementation('androidx.leanback:leanback-paging:1.1.0-alpha09') {
         exclude group: 'androidx.leanback', module: 'leanback'
     }
-    implementation('androidx.leanback:leanback-tab:1.1.0-beta01'){
+    implementation('androidx.leanback:leanback-tab:1.1.0-beta01') {
         exclude group: 'androidx.leanback', module: 'leanback'
     }
 
@@ -90,5 +90,10 @@ dependencies {
     implementation "androidx.cardview:cardview:1.0.0"
     implementation 'com.makeramen:roundedimageview:2.3.0'
 //    implementation 'com.github.JavaNoober.BackgroundLibrary:library:1.7.5'
+
+    implementation(project(path: ':DanmakuFlameMaster'))
+
+    // https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java
+    implementation("com.google.protobuf:protobuf-java:3.21.9")
 
 }
