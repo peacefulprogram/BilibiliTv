@@ -118,6 +118,54 @@ interface BilibiliApi {
         @Query("index") index: Int = 1,
     ): CommonDataResponse<VideoSnapshotResponse>
 
+    /**
+     * 判断视频是否已点赞
+     * @return 0-未点赞,1-已点赞
+     */
+    @GET("/x/web-interface/archive/has/like")
+    suspend fun isVideoHasLike(
+        @Query("aid") aid: String?,
+        @Query("bvid") bvid: String?
+    ): CommonDataResponse<Int>
+
+
+    /**
+     * 点赞或者取消点赞
+     * @param like 1-点赞,2-取消赞
+     */
+    @FormUrlEncoded
+    @POST("/x/web-interface/archive/like")
+    suspend fun likeVideo(
+        @Field("aid") aid: String?,
+        @Field("bvid") bvid: String?,
+        @Field("like") like: Int,
+        @Field("csrf") csrf: String
+    ): CommonDataResponse<Unit>
+
+    /**
+     * 判断视频是否已投币
+     * @return 0-未点赞,1-已点赞
+     */
+    @GET("/x/web-interface/archive/coins")
+    suspend fun isVideoHasCoin(
+        @Query("aid") aid: String?,
+        @Query("bvid") bvid: String?
+    ): CommonDataResponse<HasCoinResponse>
+
+    /**
+     * 投币
+     * @param like 1-点赞,2-取消赞
+     */
+    @FormUrlEncoded
+    @POST("/x/web-interface/coin/add")
+    suspend fun giveCoin(
+        @Field("aid") aid: String?,
+        @Field("bvid") bvid: String?,
+        @Field("csrf") csrf: String,
+        @Field("multiply") multiply: Int = 2,
+        @Field("select_like") selectLike: Int = 1,
+    ): CommonDataResponse<GiveCoinResponse>
+
     companion object {
         const val BASE_URL = "https://api.bilibili.com"
     }
