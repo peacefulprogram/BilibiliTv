@@ -1,6 +1,7 @@
 package com.jing.bilibilitv.fragment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
@@ -9,6 +10,7 @@ import androidx.leanback.app.VideoSupportFragmentGlueHost
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import coil.ImageLoader
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player.Listener
@@ -23,6 +25,7 @@ import com.jing.bilibilitv.http.data.VideoUrlResponse
 import com.jing.bilibilitv.http.data.VideoUrlVideo
 import com.jing.bilibilitv.model.VideoPlayBackViewModel
 import com.jing.bilibilitv.model.VideoPlayerDelegate
+import com.jing.bilibilitv.playback.AsyncSeekDataProvider
 import com.jing.bilibilitv.playback.ProgressTransportControlGlue
 import com.jing.bilibilitv.resource.Resource
 import kotlinx.coroutines.flow.collectLatest
@@ -34,8 +37,9 @@ class LbVideoPlaybackFragment(
     private val bvid: String?,
     private val videoTitle: String,
     private val okHttpClient: OkHttpClient
-) :
-    VideoSupportFragment() {
+) : VideoSupportFragment() {
+
+    private val TAG = LbVideoPlaybackFragment::class.java.simpleName
 
     private val viewModel by activityViewModels<VideoPlayBackViewModel>()
 
@@ -53,11 +57,16 @@ class LbVideoPlaybackFragment(
 
     private var audioList: List<VideoUrlAudio> = emptyList()
 
+    private lateinit var snapshotLoader: ImageLoader
+
+    private var seekDataProvider: AsyncSeekDataProvider? = null
+
     private var currentQuality: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.loadVideoUrl(avid = avid, bvid)
+        viewModel.loadVideoUrl(avid = avid, bvid = bvid)
+        viewModel.loadSnapshot(avid = avid, bvid = bvid)
         playerDelegate = viewModel.playerDelegate
     }
 
@@ -69,10 +78,12 @@ class LbVideoPlaybackFragment(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        snapshotLoader = ImageLoader(requireContext())
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.viewUrlState.collectLatest {
                     if (it is Resource.Success) {
+                        Log.d(TAG, "onViewCreated: video url load success")
                         onUrlResponse(it.data)
                         var seekTo = -1L
                         var showToast = false
@@ -90,6 +101,16 @@ class LbVideoPlaybackFragment(
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
+                    }
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.snapshotResponse.collectLatest {
+                    if (it is Resource.Success) {
+                        seekDataProvider?.snapshotResponse = it.data
                     }
                 }
             }
@@ -115,8 +136,7 @@ class LbVideoPlaybackFragment(
         }
         val factory = ProgressiveMediaSource.Factory(exoPlayerDataSourceFactory)
         val sources = arrayOf(
-            factory.createMediaSource(MediaItem.fromUri(video.baseUrl)),
-            factory.createMediaSource(
+            factory.createMediaSource(MediaItem.fromUri(video.baseUrl)), factory.createMediaSource(
                 MediaItem.fromUri(audioList.minBy { it.bandwidth }.baseUrl)
             )
         )
@@ -130,30 +150,33 @@ class LbVideoPlaybackFragment(
 
 
     private fun initPlayer() {
-        exoPlayer = ExoPlayer.Builder(requireContext())
-            .build()
-            .apply {
-                prepareGlue(this)
-                this.addListener(object : Listener {
-                    override fun onIsPlayingChanged(isPlaying: Boolean) {
-                        if (isPlaying) {
-                            playerDelegate.play()
-                        } else {
-                            playerDelegate.pause()
-                        }
+        Log.d(TAG, "initPlayer")
+        exoPlayer = ExoPlayer.Builder(requireContext()).build().apply {
+            prepareGlue(this)
+            this.addListener(object : Listener {
+                override fun onIsPlayingChanged(isPlaying: Boolean) {
+                    if (isPlaying) {
+                        playerDelegate.play()
+                    } else {
+                        playerDelegate.pause()
                     }
+                }
 
-                })
-            }
+            })
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        exoPlayerGlue?.pause()
     }
 
     private fun prepareGlue(localExoplayer: ExoPlayer) {
+        val context = requireContext()
         exoPlayerGlue = ProgressTransportControlGlue(
-            requireContext(),
+            context,
             LeanbackPlayerAdapter(
-                requireContext(),
-                localExoplayer,
-                200
+                context, localExoplayer, 200
             ),
             { playerDelegate.updateProgress(localExoplayer.currentPosition) },
             this::changeQuality
@@ -164,6 +187,8 @@ class LbVideoPlaybackFragment(
             isControlsOverlayAutoHideEnabled = true
             isSeekEnabled = true
             title = videoTitle
+            seekDataProvider = AsyncSeekDataProvider(context, lifecycleScope)
+            seekProvider = seekDataProvider
         }
     }
 

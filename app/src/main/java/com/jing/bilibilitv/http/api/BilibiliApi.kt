@@ -1,11 +1,7 @@
 package com.jing.bilibilitv.http.api
 
 import com.jing.bilibilitv.http.data.*
-import retrofit2.http.Field
-import retrofit2.http.FormUrlEncoded
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Query
+import retrofit2.http.*
 
 interface BilibiliApi {
 
@@ -110,6 +106,17 @@ interface BilibiliApi {
         @Query("type") type: String? = null,
         @Query("ps") pageSize: Int = 20
     ): CommonDataResponse<HistoryResponse>
+
+    /**
+     * 获取视频分段快照
+     */
+    @GET("/x/player/videoshot")
+    suspend fun getVideoSnapshot(
+        @Query("aid") aid: String?,
+        @Query("bvid") bvid: String?,
+        @Query("cid") cid: Long? = null,
+        @Query("index") index: Int = 1,
+    ): CommonDataResponse<VideoSnapshotResponse>
 
     companion object {
         const val BASE_URL = "https://api.bilibili.com"

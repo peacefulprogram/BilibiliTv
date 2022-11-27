@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jing.bilibilitv.http.api.BilibiliApi
 import com.jing.bilibilitv.http.cookie.BilibiliCookieName
+import com.jing.bilibilitv.http.data.VideoSnapshotResponse
 import com.jing.bilibilitv.http.data.VideoUrlResponse
 import com.jing.bilibilitv.resource.Resource
 import com.jing.bilibilitv.room.dao.BlCookieDao
@@ -30,8 +31,15 @@ class VideoPlayBackViewModel @Inject constructor(
 
     private var cid: Long? = null
 
+    @Volatile
     private var csrfToken: String? = null
 
+
+    private var _snapshotResponse: MutableStateFlow<Resource<VideoSnapshotResponse>> =
+        MutableStateFlow(Resource.Loading())
+
+    val snapshotResponse: StateFlow<Resource<VideoSnapshotResponse>>
+        get() = _snapshotResponse
 
     private val _videoUrlState: MutableStateFlow<Resource<VideoUrlResponse>> =
         MutableStateFlow(Resource.Loading())
@@ -84,6 +92,20 @@ class VideoPlayBackViewModel @Inject constructor(
             csrf = csrfToken!!,
             progress = progress / 1000
         )
+    }
+
+    fun loadSnapshot(avid: String?, bvid: String?) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _snapshotResponse.emit(Resource.Loading())
+            try {
+                bilibiliApi.getVideoSnapshot(aid = avid, bvid = bvid).data?.let { data ->
+                    _snapshotResponse.emit(Resource.Success(data))
+                }
+            } catch (e: Exception) {
+                _snapshotResponse.emit(Resource.Error(e.message))
+                Log.e(TAG, "loadSnapshot: load snapshot error", e)
+            }
+        }
     }
 
 
