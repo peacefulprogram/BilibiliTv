@@ -88,17 +88,16 @@ interface BilibiliApi {
     ): CommonDataResponse<VideoUrlResponse>
 
     /**
-     * 上传视频播放纪录
+     * 上传视频播放记录
      */
-    @POST("/x/click-interface/web/heartbeat")
+    @POST("/x/v2/history/report")
     @FormUrlEncoded
     suspend fun updateVideoHistory(
-        @Field("aid") aid: String?,
-        @Field("bvid") bvid: String?,
+        @Field("aid") aid: String,
         @Field("cid") cid: Long,
         @Field("csrf") csrf: String,
-        @Field("played_time") playedTime: Long,
-        @Field("epid") epid: Long? = null
+        @Field("progress") progress: Long,
+        @Field("platform") platform: String = "android"
     ): CommonDataResponse<Unit>
 
     /**

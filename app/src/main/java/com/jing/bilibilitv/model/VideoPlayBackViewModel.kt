@@ -167,10 +167,9 @@ class VideoPlayBackViewModel @Inject constructor(
         }
         bilibiliApi.updateVideoHistory(
             aid = avid!!,
-            bvid = bvid,
             cid = cidState.value,
             csrf = GlobalState.csrfToken,
-            playedTime = progress / 1000
+            progress = progress / 1000
         )
     }
 
