@@ -49,7 +49,6 @@ import okhttp3.OkHttpClient
 class LbVideoPlaybackFragment(
     private val avid: String?,
     private val bvid: String?,
-    private val videoTitle: String,
     private val okHttpClient: OkHttpClient
 ) : VideoSupportFragment(), IBackPressAwareFragment {
 
@@ -85,8 +84,7 @@ class LbVideoPlaybackFragment(
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.loadVideoUrl(avid = avid, bvid = bvid)
-        viewModel.loadSnapshot(avid = avid, bvid = bvid)
+        viewModel.init(avid = avid, bvid = bvid)
         playerDelegate = viewModel.playerDelegate
     }
 
@@ -188,6 +186,14 @@ class LbVideoPlaybackFragment(
                 }
             }
         }
+
+        lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.titleState.collectLatest {
+                    exoPlayerGlue?.title = it
+                }
+            }
+        }
     }
 
     private fun onUrlResponse(videoUrlResponse: VideoUrlResponse) {
@@ -261,7 +267,7 @@ class LbVideoPlaybackFragment(
             // so that PlayerAdapter.seekTo(long) will be called during user seeking.
             isControlsOverlayAutoHideEnabled = true
             isSeekEnabled = true
-            title = videoTitle
+            title = viewModel.titleState.value
             seekDataProvider = AsyncSeekDataProvider(context, lifecycleScope)
             seekProvider = seekDataProvider
         }

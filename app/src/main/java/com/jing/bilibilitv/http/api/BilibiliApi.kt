@@ -57,6 +57,16 @@ interface BilibiliApi {
     ): CommonDataResponse<VideoDetailResponse>
 
     /**
+     * 获取上次播放的信息
+     */
+    @GET("x/player/v2")
+    suspend fun getLastPlayInfo(
+        @Query("aid") aid: String?,
+        @Query("bvid") bvid: String?,
+        @Query("cid") cid: Long
+    ): CommonDataResponse<LastPlayResponse>
+
+    /**
      * 获取视频的相关推荐视频
      * aid和bvid任意传一个
      */

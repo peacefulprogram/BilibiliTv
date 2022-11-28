@@ -3,37 +3,42 @@ package com.jing.bilibilitv.model
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jing.bilibilitv.GlobalState
 import com.jing.bilibilitv.danmaku.proto.DanmakuProto
 import com.jing.bilibilitv.http.api.BilibiliApi
-import com.jing.bilibilitv.http.cookie.BilibiliCookieName
+import com.jing.bilibilitv.http.data.PageX
 import com.jing.bilibilitv.http.data.VideoSnapshotResponse
 import com.jing.bilibilitv.http.data.VideoUrlResponse
 import com.jing.bilibilitv.resource.Resource
-import com.jing.bilibilitv.room.dao.BlCookieDao
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import javax.inject.Inject
 
 @HiltViewModel
 class VideoPlayBackViewModel @Inject constructor(
-    private val bilibiliApi: BilibiliApi,
-    private val blCookieDao: BlCookieDao
+    private val bilibiliApi: BilibiliApi
 ) : ViewModel() {
 
     private val TAG = VideoPlayBackViewModel::class.java.simpleName
 
-    init {
-        Log.d(TAG, "view model created")
-    }
-
     private var avid: String? = null
 
-    private var cid: Long? = null
+    private var bvid: String? = null
+
+    private val cidState: MutableStateFlow<Long> = MutableStateFlow(-1)
+
+    private val _titleSate: MutableStateFlow<String> = MutableStateFlow("")
+
+    val titleState: StateFlow<String>
+        get() = _titleSate
+
+    private var loadDanmakuJob: Job? = null
 
     @Volatile
-    private var csrfToken: String? = null
+    private var videoPages: List<PageX> = emptyList()
 
     private var _danmakuData: MutableStateFlow<Resource<List<DanmakuProto.DanmakuElem>>> =
         MutableStateFlow(Resource.Loading())
@@ -56,39 +61,71 @@ class VideoPlayBackViewModel @Inject constructor(
         get() = _videoUrlState
 
     init {
-        viewModelScope.launch(Dispatchers.IO) {
-            blCookieDao.findByCookieName(BilibiliCookieName.BILI_JCT.cookieName)?.let {
-                csrfToken = it.cookieValue
+        viewModelScope.launch {
+            cidState.collectLatest {
+                onCidChange(it)
             }
         }
     }
 
-    fun loadVideoUrl(avid: String?, bvid: String?) {
+    private fun onCidChange(cid: Long) {
+        loadDanmaku(cid)
+        loadVideoUrl(cid)
+    }
+
+    private fun changePage(page: PageX) {
+        viewModelScope.launch(Dispatchers.Default) {
+            _titleSate.emit(page.part)
+            cidState.emit(page.cid)
+        }
+    }
+
+    private fun loadVideoUrl(cid: Long) {
         viewModelScope.launch(Dispatchers.IO) {
+            _videoUrlState.emit(Resource.Loading())
             try {
-                val detailData = bilibiliApi.getVideoDetail(bvid, avid).data
-                detailData?.view?.let { detail ->
-                    this@VideoPlayBackViewModel.avid = detail.aid.toString()
-                    this@VideoPlayBackViewModel.cid = detail.cid
-                    async {
-                        loadDanmaku(detail.cid)
-                    }
-                    bilibiliApi.getPlayUrl(
-                        detail.aid.toString(),
-                        detail.bvid,
-                        detail.cid
-                    ).data?.let {
-                        _videoUrlState.emit(Resource.Success(it))
-                    }
+                bilibiliApi.getPlayUrl(
+                    aid = avid,
+                    bvid = bvid,
+                    cid = cid
+                ).data?.let {
+                    _videoUrlState.emit(Resource.Success(it))
                 }
-            } catch (e: Exception) {
-                _videoUrlState.emit(Resource.Error("加载链接失败:" + e.message))
+            } catch (ex: Exception) {
+                _videoUrlState.emit(Resource.Error("加载视频失败:${ex.message}"))
             }
         }
     }
+
+    fun init(avid: String?, bvid: String?) {
+        this.avid = avid
+        this.bvid = bvid
+        loadSnapshot(avid, bvid)
+        viewModelScope.launch(Dispatchers.IO) {
+            bilibiliApi.getVideoDetail(bvid, avid).data?.view?.let { detail ->
+                videoPages = detail.pages
+                if (videoPages.size > 1) {
+                    bilibiliApi.getLastPlayInfo(avid, bvid, detail.cid).data?.let { lastPlay ->
+                        if (lastPlay.lastPlayCid > 0) {
+                            cidState.emit(lastPlay.lastPlayCid)
+                            _titleSate.emit(videoPages.find { it.cid == lastPlay.lastPlayCid }!!.part)
+                        } else {
+                            cidState.emit(videoPages[0].cid)
+                            _titleSate.emit(videoPages[0].part)
+                        }
+                    }
+                } else {
+                    cidState.emit(videoPages[0].cid)
+                    _titleSate.emit(videoPages[0].part)
+                }
+            }
+        }
+    }
+
 
     private fun loadDanmaku(cid: Long) {
-        viewModelScope.launch(Dispatchers.IO) {
+        loadDanmakuJob?.cancel()
+        loadDanmakuJob = viewModelScope.launch(Dispatchers.IO) {
             _danmakuData.emit(Resource.Loading())
             try {
                 val reply =
@@ -125,13 +162,13 @@ class VideoPlayBackViewModel @Inject constructor(
      * @param progress 视频播放进度,毫秒
      */
     private suspend fun uploadVideoProgress(progress: Long) {
-        if (avid == null || cid == null || csrfToken == null) {
+        if (avid == null || cidState.value == -1L) {
             return
         }
         bilibiliApi.updateVideoHistory(
             aid = avid!!,
-            cid = cid!!,
-            csrf = csrfToken!!,
+            cid = cidState.value,
+            csrf = GlobalState.csrfToken,
             progress = progress / 1000
         )
     }

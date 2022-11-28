@@ -14,21 +14,22 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.navOptions
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
+import com.jing.bilibilitv.GlobalState
+import com.jing.bilibilitv.R
 import com.jing.bilibilitv.databinding.LoginLayoutBinding
-import com.jing.bilibilitv.http.api.BilibiliApi
 import com.jing.bilibilitv.http.api.PassportApi
+import com.jing.bilibilitv.http.cookie.BilibiliCookieName
 import com.jing.bilibilitv.http.data.QrCodeStatus
 import com.jing.bilibilitv.model.LoginUserViewModel
+import com.jing.bilibilitv.room.dao.BlCookieDao
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -36,7 +37,10 @@ class LoginFragment : Fragment() {
     @Inject
     lateinit var passportApi: PassportApi
 
-     val userViewModel: LoginUserViewModel by activityViewModels()
+    @Inject
+    lateinit var blCookieDao: BlCookieDao
+
+    val userViewModel: LoginUserViewModel by activityViewModels()
 
     private var fetchStatusJob: Job? = null
 
@@ -92,6 +96,11 @@ class LoginFragment : Fragment() {
                             fetchStatusJob?.cancel()
                             showQrCodeStatusText("登录成功,即将跳转到主页")
                             launch(Dispatchers.IO) {
+                                async {
+                                    GlobalState.csrfToken =
+                                        blCookieDao.findByCookieName(BilibiliCookieName.BILI_JCT.cookieName)?.cookieValue
+                                            ?: ""
+                                }
                                 val user = userViewModel.fetchUser()
                                 if (user == null || !user.isLogin) {
                                     showQrCodeStatusText("获取用户信息失败")
@@ -109,9 +118,14 @@ class LoginFragment : Fragment() {
         return viewBinding.root
     }
 
-    private suspend fun navigateToHome() {
+    private fun navigateToHome() {
         lifecycleScope.launch(Dispatchers.Main) {
-            findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToHomeFragment())
+            findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToHomeFragment(),
+                navOptions {
+                    popUpTo(R.id.loginFragment) {
+                        inclusive = true
+                    }
+                })
         }
     }
 

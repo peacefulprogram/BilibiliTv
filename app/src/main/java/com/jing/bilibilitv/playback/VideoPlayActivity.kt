@@ -31,7 +31,7 @@ class VideoPlayActivity : FragmentActivity() {
         supportFragmentManager.beginTransaction()
             .replace(
                 R.id.activity_playback,
-                LbVideoPlaybackFragment(args.avid, args.bvid, args.title, okHttpClient)
+                LbVideoPlaybackFragment(args.avid, args.bvid, okHttpClient)
             )
             .commit()
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
