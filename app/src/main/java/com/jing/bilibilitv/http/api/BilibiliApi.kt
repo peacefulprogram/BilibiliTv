@@ -90,14 +90,15 @@ interface BilibiliApi {
     /**
      * 上传视频播放纪录
      */
-    @POST("/x/v2/history/report")
+    @POST("/x/click-interface/web/heartbeat")
     @FormUrlEncoded
     suspend fun updateVideoHistory(
-        @Field("aid") aid: String,
+        @Field("aid") aid: String?,
+        @Field("bvid") bvid: String?,
         @Field("cid") cid: Long,
         @Field("csrf") csrf: String,
-        @Field("progress") progress: Long,
-        @Field("platform") platform: String = "android"
+        @Field("played_time") playedTime: Long,
+        @Field("epid") epid: Long? = null
     ): CommonDataResponse<Unit>
 
     /**
@@ -111,8 +112,8 @@ interface BilibiliApi {
      */
     @GET("/x/web-interface/history/cursor")
     suspend fun getHistory(
-        @Query("max") max: Int,
-        @Query("view_at") viewAt: Int,
+        @Query("max") max: Long,
+        @Query("view_at") viewAt: Long,
         @Query("business") business: String,
         @Query("type") type: String? = null,
         @Query("ps") pageSize: Int = 20

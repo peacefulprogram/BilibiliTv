@@ -149,6 +149,7 @@ class VideoHistoryFragment(private val getSelectTabView: () -> View? = { null })
     }
 
     override fun onVPShow() {
+        refreshData()
     }
 
     override fun doRefresh() {

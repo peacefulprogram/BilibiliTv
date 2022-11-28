@@ -12,7 +12,7 @@ data class DynamicResponse(
     @SerializedName("update_baseline")
     val updateBaseline: String,
     @SerializedName("update_num")
-    val updateNum: Int
+    val updateNum: Long
 )
 
 data class DynamicItem(
@@ -34,7 +34,7 @@ data class DynamicBasic(
     @SerializedName("comment_id_str")
     val commentIdStr: String,
     @SerializedName("comment_type")
-    val commentType: Int,
+    val commentType: Long,
     @SerializedName("like_icon")
     val likeIcon: DynamicLikeIcon,
     @SerializedName("rid_str")
@@ -46,8 +46,8 @@ data class DynamicModules(
     val moduleAuthor: DynamicModuleAuthor,
     @SerializedName("module_dynamic")
     val moduleDynamic: DynamicModuleDynamic,
-//    @SerializedName("module_interaction")
-//    val moduleInteraction: DynamicModuleInteraction?,
+//    @SerializedName("module_Longeraction")
+//    val moduleLongeraction: DynamicModuleLongeraction?,
 //    @SerializedName("module_more")
 //    val moduleMore: DynamicModuleMore,
     @SerializedName("module_stat")
@@ -73,7 +73,7 @@ data class DynamicLikeIcon(
     @SerializedName("end_url")
     val endUrl: String,
     @SerializedName("id")
-    val id: Int,
+    val id: Long,
     @SerializedName("start_url")
     val startUrl: String
 )
@@ -92,7 +92,7 @@ data class DynamicModuleAuthor(
     @SerializedName("label")
     val label: String,
     @SerializedName("mid")
-    val mid: Int,
+    val mid: Long,
     @SerializedName("name")
     val name: String,
     @SerializedName("official_verify")
@@ -106,7 +106,7 @@ data class DynamicModuleAuthor(
     @SerializedName("pub_time")
     val pubTime: String,
     @SerializedName("pub_ts")
-    val pubTs: Int,
+    val pubTs: Long,
     @SerializedName("type")
     val type: String,
     @SerializedName("vip")
@@ -124,14 +124,14 @@ data class DynamicModuleDynamic(
     val topic: DynamicTopic?
 )
 
-data class DynamicModuleInteraction(
+data class DynamicModuleLongeraction(
     @SerializedName("items")
     val items: List<DynamicItemXX>
 )
 
 data class DynamicModuleMore(
-    @SerializedName("three_point_items")
-    val threePointItems: List<DynamicThreePointItem>
+    @SerializedName("three_poLong_items")
+    val threePoLongItems: List<DynamicThreePoLongItem>
 )
 
 data class DynamicModuleStat(
@@ -149,25 +149,25 @@ data class DynamicDecorate(
     @SerializedName("fan")
     val fan: DynamicFan,
     @SerializedName("id")
-    val id: Int,
+    val id: Long,
     @SerializedName("jump_url")
     val jumpUrl: String,
     @SerializedName("name")
     val name: String,
     @SerializedName("type")
-    val type: Int
+    val type: Long
 )
 
 data class DynamicOfficialVerify(
     @SerializedName("desc")
     val desc: String,
     @SerializedName("type")
-    val type: Int
+    val type: Long
 )
 
 data class DynamicPendant(
     @SerializedName("expire")
-    val expire: Int,
+    val expire: Long,
     @SerializedName("image")
     val image: String,
     @SerializedName("image_enhance")
@@ -177,12 +177,12 @@ data class DynamicPendant(
     @SerializedName("name")
     val name: String,
     @SerializedName("pid")
-    val pid: Int
+    val pid: Long
 )
 
 data class DynamicVip(
     @SerializedName("avatar_subscript")
-    val avatarSubscript: Int,
+    val avatarSubscript: Long,
     @SerializedName("avatar_subscript_url")
     val avatarSubscriptUrl: String,
     @SerializedName("due_date")
@@ -192,11 +192,11 @@ data class DynamicVip(
     @SerializedName("nickname_color")
     val nicknameColor: String,
     @SerializedName("status")
-    val status: Int,
+    val status: Long,
     @SerializedName("theme_type")
-    val themeType: Int,
+    val themeType: Long,
     @SerializedName("type")
-    val type: Int
+    val type: Long
 )
 
 data class DynamicFan(
@@ -207,14 +207,14 @@ data class DynamicFan(
     @SerializedName("num_str")
     val numStr: String,
     @SerializedName("number")
-    val number: Int
+    val number: Long
 )
 
 data class DynamicLabel(
     @SerializedName("bg_color")
     val bgColor: String,
     @SerializedName("bg_style")
-    val bgStyle: Int,
+    val bgStyle: Long,
     @SerializedName("border_color")
     val borderColor: String,
     @SerializedName("img_label_uri_hans")
@@ -266,7 +266,7 @@ data class DynamicMajor(
 
 data class DynamicTopic(
     @SerializedName("id")
-    val id: Int,
+    val id: Long,
     @SerializedName("jump_url")
     val jumpUrl: String,
     @SerializedName("name")
@@ -275,21 +275,21 @@ data class DynamicTopic(
 
 data class DynamicVote(
     @SerializedName("choice_cnt")
-    val choiceCnt: Int,
+    val choiceCnt: Long,
     @SerializedName("default_share")
-    val defaultShare: Int,
+    val defaultShare: Long,
     @SerializedName("desc")
     val desc: String,
     @SerializedName("end_time")
     val endTime: Long,
     @SerializedName("join_num")
-    val joinNum: Int,
+    val joinNum: Long,
     @SerializedName("status")
-    val status: Int,
+    val status: Long,
     @SerializedName("uid")
-    val uid: Int,
+    val uid: Long,
     @SerializedName("vote_id")
-    val voteId: Int
+    val voteId: Long
 )
 
 data class DynamicRichTextNode(
@@ -311,11 +311,11 @@ data class DynamicEmoji(
     @SerializedName("icon_url")
     val iconUrl: String,
     @SerializedName("size")
-    val size: Int,
+    val size: Long,
     @SerializedName("text")
     val text: String,
     @SerializedName("type")
-    val type: Int
+    val type: Long
 )
 
 data class DynamicArchive(
@@ -330,7 +330,7 @@ data class DynamicArchive(
     @SerializedName("desc")
     val desc: String,
     @SerializedName("disable_preview")
-    val disablePreview: Int,
+    val disablePreview: Long,
     @SerializedName("duration_text")
     val durationText: String,
     @SerializedName("jump_url")
@@ -340,12 +340,12 @@ data class DynamicArchive(
     @SerializedName("title")
     val title: String,
     @SerializedName("type")
-    val type: Int
+    val type: Long
 )
 
 data class DynamicDraw(
     @SerializedName("id")
-    val id: Int,
+    val id: Long,
     @SerializedName("items")
     val items: List<DynamicItemX>
 )
@@ -354,7 +354,7 @@ data class DynamicLiveRcmd(
     @SerializedName("content")
     val content: String,
     @SerializedName("reserve_type")
-    val reserveType: Int
+    val reserveType: Long
 )
 
 data class DynamicPgc(
@@ -363,19 +363,19 @@ data class DynamicPgc(
     @SerializedName("cover")
     val cover: String,
     @SerializedName("epid")
-    val epid: Int,
+    val epid: Long,
     @SerializedName("jump_url")
     val jumpUrl: String,
     @SerializedName("season_id")
-    val seasonId: Int,
+    val seasonId: Long,
     @SerializedName("stat")
     val stat: DynamicStat,
     @SerializedName("sub_type")
-    val subType: Int,
+    val subType: Long,
     @SerializedName("title")
     val title: String,
     @SerializedName("type")
-    val type: Int
+    val type: Long
 )
 
 data class DynamicBadge(
@@ -396,20 +396,20 @@ data class DynamicStat(
 
 data class DynamicItemX(
     @SerializedName("height")
-    val height: Int,
+    val height: Long,
     @SerializedName("size")
     val size: Double,
     @SerializedName("src")
     val src: String,
     @SerializedName("width")
-    val width: Int
+    val width: Long
 )
 
 data class DynamicItemXX(
     @SerializedName("desc")
     val desc: DynamicDescX,
     @SerializedName("type")
-    val type: Int
+    val type: Long
 )
 
 data class DynamicDescX(
@@ -432,7 +432,7 @@ data class DynamicRichTextNodeX(
     val type: String
 )
 
-data class DynamicThreePointItem(
+data class DynamicThreePoLongItem(
     @SerializedName("label")
     val label: String,
     @SerializedName("type")
@@ -441,7 +441,7 @@ data class DynamicThreePointItem(
 
 data class DynamicComment(
     @SerializedName("count")
-    val count: Int,
+    val count: Long,
     @SerializedName("forbidden")
     val forbidden: Boolean,
     @SerializedName("hidden")
@@ -450,14 +450,14 @@ data class DynamicComment(
 
 data class DynamicForward(
     @SerializedName("count")
-    val count: Int,
+    val count: Long,
     @SerializedName("forbidden")
     val forbidden: Boolean
 )
 
 data class DynamicLike(
     @SerializedName("count")
-    val count: Int,
+    val count: Long,
     @SerializedName("forbidden")
     val forbidden: Boolean,
     @SerializedName("status")
@@ -468,7 +468,7 @@ data class DynamicBasicX(
     @SerializedName("comment_id_str")
     val commentIdStr: String,
     @SerializedName("comment_type")
-    val commentType: Int,
+    val commentType: Long,
     @SerializedName("like_icon")
     val likeIcon: DynamicLikeIcon,
     @SerializedName("rid_str")
@@ -496,7 +496,7 @@ data class DynamicModuleAuthorX(
     @SerializedName("label")
     val label: String,
     @SerializedName("mid")
-    val mid: Int,
+    val mid: Long,
     @SerializedName("name")
     val name: String,
     @SerializedName("official_verify")
@@ -508,7 +508,7 @@ data class DynamicModuleAuthorX(
     @SerializedName("pub_time")
     val pubTime: String,
     @SerializedName("pub_ts")
-    val pubTs: Int,
+    val pubTs: Long,
     @SerializedName("type")
     val type: String,
     @SerializedName("vip")
@@ -532,18 +532,18 @@ data class DynamicDecorateX(
     @SerializedName("fan")
     val fan: DynamicFan,
     @SerializedName("id")
-    val id: Int,
+    val id: Long,
     @SerializedName("jump_url")
     val jumpUrl: String,
     @SerializedName("name")
     val name: String,
     @SerializedName("type")
-    val type: Int
+    val type: Long
 )
 
 data class DynamicVipX(
     @SerializedName("avatar_subscript")
-    val avatarSubscript: Int,
+    val avatarSubscript: Long,
     @SerializedName("avatar_subscript_url")
     val avatarSubscriptUrl: String,
     @SerializedName("due_date")
@@ -553,11 +553,11 @@ data class DynamicVipX(
     @SerializedName("nickname_color")
     val nicknameColor: String,
     @SerializedName("status")
-    val status: Int,
+    val status: Long,
     @SerializedName("theme_type")
-    val themeType: Int,
+    val themeType: Long,
     @SerializedName("type")
-    val type: Int
+    val type: Long
 )
 
 data class DynamicDescXX(
@@ -597,7 +597,7 @@ data class DynamicArchiveX(
     @SerializedName("desc")
     val desc: String,
     @SerializedName("disable_preview")
-    val disablePreview: Int,
+    val disablePreview: Long,
     @SerializedName("duration_text")
     val durationText: String,
     @SerializedName("jump_url")
@@ -607,7 +607,7 @@ data class DynamicArchiveX(
     @SerializedName("title")
     val title: String,
     @SerializedName("type")
-    val type: Int
+    val type: Long
 )
 
 enum class DynamicType(val value: String? = null) {

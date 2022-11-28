@@ -1,7 +1,6 @@
 package com.jing.bilibilitv.di
 
 import android.content.Context
-import android.util.Log
 import androidx.room.Room
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -18,7 +17,9 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.ResponseBody.Companion.toResponseBody
+import okio.Buffer
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
@@ -82,7 +83,24 @@ class DIModule {
                 request.headers.forEach {
                     requestLines.add("$prefix> ${it.first}: ${it.second}")
                 }
-                val response = chain.proceed(request)
+                val response = if (request.body != null) {
+                    val bytes = Buffer().apply {
+                        request.body!!.writeTo(this)
+                    }.readByteArray()
+                    requestLines.add("$prefix> body: ${String(bytes, Charsets.UTF_8)}")
+                    chain.proceed(
+                        request.newBuilder()
+                            .method(
+                                request.method,
+                                bytes.toRequestBody(
+                                    request.body!!.contentType()
+                                )
+                            )
+                            .build()
+                    )
+                } else {
+                    chain.proceed(request)
+                }
                 requestLines.add("<$prefix status: ${response.code}")
                 val resp = if (response.body == null) {
                     response

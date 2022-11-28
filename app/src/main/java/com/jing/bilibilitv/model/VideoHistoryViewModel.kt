@@ -1,5 +1,6 @@
 package com.jing.bilibilitv.model
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.*
@@ -12,6 +13,8 @@ import javax.inject.Inject
 @HiltViewModel
 class VideoHistoryViewModel @Inject constructor(private val bilibiliApi: BilibiliApi) :
     ViewModel() {
+
+    private val TAG = VideoHistoryViewModel::class.java.simpleName
 
     private var lastCursor: HistoryCursor? = null
 
@@ -49,6 +52,7 @@ class VideoHistoryViewModel @Inject constructor(private val bilibiliApi: Bilibil
                         nextKey = if (history.list.isEmpty()) null else page + 1
                     )
                 } catch (e: Exception) {
+                    Log.e(TAG, "load: 加载历史记录失败", e)
                     return LoadResult.Error(e)
                 }
             }

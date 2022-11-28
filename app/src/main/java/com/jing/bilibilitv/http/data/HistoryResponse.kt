@@ -16,18 +16,18 @@ data class HistoryCursor(
     @SerializedName("business")
     val business: String,
     @SerializedName("max")
-    val max: Int,
+    val max: Long,
     @SerializedName("ps")
-    val ps: Int,
+    val ps: Long,
     @SerializedName("view_at")
-    val viewAt: Int
+    val viewAt: Long
 )
 
 data class HistoryItem(
     @SerializedName("author_face")
     val authorFace: String,
     @SerializedName("author_mid")
-    val authorMid: Int,
+    val authorMid: Long,
     @SerializedName("author_name")
     val authorName: String,
     @SerializedName("badge")
@@ -37,23 +37,23 @@ data class HistoryItem(
     @SerializedName("current")
     val current: String,
     @SerializedName("duration")
-    val duration: Int,
+    val duration: Long,
     @SerializedName("history")
     val history: HistoryHistory,
     @SerializedName("is_fav")
-    val isFav: Int,
+    val isFav: Long,
     @SerializedName("is_finish")
-    val isFinish: Int,
+    val isFinish: Long,
     @SerializedName("kid")
-    val kid: Int,
+    val kid: Long,
     @SerializedName("live_status")
-    val liveStatus: Int,
+    val liveStatus: Long,
     @SerializedName("long_title")
     val longTitle: String,
     @SerializedName("new_desc")
     val newDesc: String,
     @SerializedName("progress")
-    val progress: Int,
+    val progress: Long,
     @SerializedName("show_title")
     val showTitle: String,
     @SerializedName("tag_name")
@@ -61,13 +61,13 @@ data class HistoryItem(
     @SerializedName("title")
     val title: String,
     @SerializedName("total")
-    val total: Int,
+    val total: Long,
     @SerializedName("uri")
     val uri: String,
     @SerializedName("videos")
-    val videos: Int,
+    val videos: Long,
     @SerializedName("view_at")
-    val viewAt: Int
+    val viewAt: Long
 )
 
 data class HistoryTab(
@@ -83,15 +83,15 @@ data class HistoryHistory(
     @SerializedName("bvid")
     val bvid: String,
     @SerializedName("cid")
-    val cid: Int,
+    val cid: Long,
     @SerializedName("dt")
-    val dt: Int,
+    val dt: Long,
     @SerializedName("epid")
-    val epid: Int,
+    val epid: Long,
     @SerializedName("oid")
-    val oid: Int,
+    val oid: Long,
     @SerializedName("page")
-    val page: Int,
+    val page: Long,
     @SerializedName("part")
     val part: String
 )

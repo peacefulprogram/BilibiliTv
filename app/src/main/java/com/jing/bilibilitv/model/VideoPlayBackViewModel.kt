@@ -71,9 +71,10 @@ class VideoPlayBackViewModel @Inject constructor(
     private fun onCidChange(cid: Long) {
         loadDanmaku(cid)
         loadVideoUrl(cid)
+        loadSnapshot(avid, bvid, cid)
     }
 
-    private fun changePage(page: PageX) {
+    fun changePage(page: PageX) {
         viewModelScope.launch(Dispatchers.Default) {
             _titleSate.emit(page.part)
             cidState.emit(page.cid)
@@ -100,7 +101,6 @@ class VideoPlayBackViewModel @Inject constructor(
     fun init(avid: String?, bvid: String?) {
         this.avid = avid
         this.bvid = bvid
-        loadSnapshot(avid, bvid)
         viewModelScope.launch(Dispatchers.IO) {
             bilibiliApi.getVideoDetail(bvid, avid).data?.view?.let { detail ->
                 videoPages = detail.pages
@@ -167,17 +167,18 @@ class VideoPlayBackViewModel @Inject constructor(
         }
         bilibiliApi.updateVideoHistory(
             aid = avid!!,
+            bvid = bvid,
             cid = cidState.value,
             csrf = GlobalState.csrfToken,
-            progress = progress / 1000
+            playedTime = progress / 1000
         )
     }
 
-    fun loadSnapshot(avid: String?, bvid: String?) {
+    fun loadSnapshot(avid: String?, bvid: String?, cid: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             _snapshotResponse.emit(Resource.Loading())
             try {
-                bilibiliApi.getVideoSnapshot(aid = avid, bvid = bvid).data?.let { data ->
+                bilibiliApi.getVideoSnapshot(aid = avid, bvid = bvid, cid = cid).data?.let { data ->
                     _snapshotResponse.emit(Resource.Success(data))
                 }
             } catch (e: Exception) {
