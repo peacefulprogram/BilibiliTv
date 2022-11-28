@@ -1,6 +1,7 @@
 package com.jing.bilibilitv.fragment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,6 +28,8 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class SplashFragment : Fragment() {
     val userViewModel: LoginUserViewModel by activityViewModels()
+
+    private val TAG = SplashFragment::class.java.simpleName
 
     @Inject
     lateinit var blCookieDao: BlCookieDao
@@ -57,7 +60,14 @@ class SplashFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         lifecycleScope.launch(Dispatchers.IO) {
-            val fetchUser = async { userViewModel.fetchUser() }
+            val fetchUser = async {
+                try {
+                    userViewModel.fetchUser()
+                } catch (e: Exception) {
+                    Log.e(TAG, "onCreateView: fetch user failed", e)
+                    null
+                }
+            }
             val jb = async { cookieJar.loadCookieFromDatabase() }
             val jb1 =
                 async {
