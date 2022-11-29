@@ -181,7 +181,8 @@ interface BilibiliApi {
     @GET("/x/v2/dm/web/view")
     suspend fun getVideoDanmaku(
         @Query("oid") cid: Long,
-        @Query("type") type: Int = 1
+        @Query("pid") avid: String?,
+        @Query("type") type: Int = 1,
     ): ResponseBody
 
     @GET("/x/v2/dm/web/seg.so")

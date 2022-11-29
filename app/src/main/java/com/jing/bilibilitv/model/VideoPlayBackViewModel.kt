@@ -28,7 +28,27 @@ class VideoPlayBackViewModel @Inject constructor(
 
     private var bvid: String? = null
 
-    private val cidState: MutableStateFlow<Long> = MutableStateFlow(-1)
+    private val _currentQnState = MutableStateFlow(112) // 默认1080 高码率
+
+    val currentQn: Int
+        get() = _currentQnState.value
+
+    private val _cidState: MutableStateFlow<Long> = MutableStateFlow(-1)
+
+    val currentCid: Long
+        get() = _cidState.value
+
+    var lastPlayTime: Long = 0
+
+    private var _duration: Long = 0
+
+    val duration: Long
+        get() = _duration
+
+    private var _qualityList = emptyList<Pair<Int, String>>()
+
+    val qualityList: List<Pair<Int, String>>
+        get() = _qualityList
 
     private val _titleSate: MutableStateFlow<String> = MutableStateFlow("")
 
@@ -55,20 +75,76 @@ class VideoPlayBackViewModel @Inject constructor(
     private val _videoUrlState: MutableStateFlow<Resource<VideoUrlResponse>> =
         MutableStateFlow(Resource.Loading())
 
-    val playerDelegate = VideoPlayerDelegate(viewModelScope, this::uploadVideoProgress)
+    private val _selectedVideoAndAudio: MutableStateFlow<Resource<VideoUrlAndQuality>> =
+        MutableStateFlow(Resource.Loading())
+    val selectedVideoAndAudio: StateFlow<Resource<VideoUrlAndQuality>>
+        get() = _selectedVideoAndAudio
 
-    val viewUrlState: StateFlow<Resource<VideoUrlResponse>>
-        get() = _videoUrlState
+    val playerDelegate = VideoPlayerDelegate(viewModelScope, this::uploadVideoProgress)
 
     init {
         viewModelScope.launch {
-            cidState.collectLatest {
+            _cidState.collectLatest {
                 onCidChange(it)
+            }
+        }
+
+        viewModelScope.launch {
+            _currentQnState.collectLatest { qn ->
+                val selectedVideo = _selectedVideoAndAudio.value
+                if (selectedVideo is Resource.Success && selectedVideo.data.qn == qn) {
+                    return@collectLatest
+                }
+                onVideoUrlOrQnChange(_videoUrlState.value, qn)
+            }
+        }
+
+        viewModelScope.launch {
+            _videoUrlState.collectLatest { resp ->
+                if (resp is Resource.Success) {
+                    _qualityList =
+                        resp.data.supportFormats.map { Pair(it.quality, it.newDescription) }
+                }
+                onVideoUrlOrQnChange(
+                    resp,
+                    _currentQnState.value
+                )
             }
         }
     }
 
+    private suspend fun onVideoUrlOrQnChange(urlResource: Resource<VideoUrlResponse>, qn: Int) {
+        try {
+            if (urlResource is Resource.Success) {
+                val video = urlResource.data.dash!!.video.find { it.id <= qn }
+                    ?: throw RuntimeException("找不到该清晰度的视频")
+                val audioUrl = urlResource.data.dash.audio.minByOrNull { it.bandwidth }?.baseUrl
+                    ?: throw RuntimeException("无音频资源")
+                _selectedVideoAndAudio.emit(
+                    Resource.Success(
+                        VideoUrlAndQuality(
+                            qn = video.id,
+                            videoUrl = video.baseUrl,
+                            audioUrl = audioUrl
+                        )
+                    )
+                )
+                if (currentQn != video.id) {
+                    _currentQnState.emit(video.id)
+                }
+            }
+            if (urlResource is Resource.Error) {
+                throw RuntimeException(urlResource.message, urlResource.exception)
+            }
+        } catch (e: Exception) {
+            _selectedVideoAndAudio.emit(Resource.Error(e.message, exception = e))
+        }
+    }
+
     private fun onCidChange(cid: Long) {
+        if (cid == -1L) {
+            return
+        }
         loadDanmaku(cid)
         loadVideoUrl(cid)
         loadSnapshot(avid, bvid, cid)
@@ -76,8 +152,10 @@ class VideoPlayBackViewModel @Inject constructor(
 
     fun changePage(page: PageX) {
         viewModelScope.launch(Dispatchers.Default) {
-            _titleSate.emit(page.part)
-            cidState.emit(page.cid)
+            if (page.cid != _cidState.value) {
+                _titleSate.emit(page.part)
+                _cidState.emit(page.cid)
+            }
         }
     }
 
@@ -93,7 +171,7 @@ class VideoPlayBackViewModel @Inject constructor(
                     _videoUrlState.emit(Resource.Success(it))
                 }
             } catch (ex: Exception) {
-                _videoUrlState.emit(Resource.Error("加载视频失败:${ex.message}"))
+                _videoUrlState.emit(Resource.Error("加载视频失败:${ex.message}", ex))
             }
         }
     }
@@ -107,15 +185,16 @@ class VideoPlayBackViewModel @Inject constructor(
                 if (videoPages.size > 1) {
                     bilibiliApi.getLastPlayInfo(avid, bvid, detail.cid).data?.let { lastPlay ->
                         if (lastPlay.lastPlayCid > 0) {
-                            cidState.emit(lastPlay.lastPlayCid)
+                            _cidState.emit(lastPlay.lastPlayCid)
+                            lastPlayTime = lastPlay.lastPlayTime
                             _titleSate.emit(videoPages.find { it.cid == lastPlay.lastPlayCid }!!.part)
                         } else {
-                            cidState.emit(videoPages[0].cid)
+                            _cidState.emit(videoPages[0].cid)
                             _titleSate.emit(videoPages[0].part)
                         }
                     }
                 } else {
-                    cidState.emit(videoPages[0].cid)
+                    _cidState.emit(videoPages[0].cid)
                     _titleSate.emit(videoPages[0].part)
                 }
             }
@@ -129,7 +208,12 @@ class VideoPlayBackViewModel @Inject constructor(
             _danmakuData.emit(Resource.Loading())
             try {
                 val reply =
-                    DanmakuProto.DmWebViewReply.parseFrom(bilibiliApi.getVideoDanmaku(cid).bytes())
+                    DanmakuProto.DmWebViewReply.parseFrom(
+                        bilibiliApi.getVideoDanmaku(
+                            cid = cid,
+                            avid = avid
+                        ).bytes()
+                    )
                 if (reply.hasDmSge()) {
                     val list = (1..reply.dmSge.total).map { segmentIndex ->
                         async {
@@ -152,7 +236,7 @@ class VideoPlayBackViewModel @Inject constructor(
                     _danmakuData.emit(Resource.Success(list))
                 }
             } catch (e: Exception) {
-                _danmakuData.emit(Resource.Error(e.message))
+                _danmakuData.emit(Resource.Error(exception = e))
             }
         }
     }
@@ -162,12 +246,12 @@ class VideoPlayBackViewModel @Inject constructor(
      * @param progress 视频播放进度,毫秒
      */
     private suspend fun uploadVideoProgress(progress: Long) {
-        if (avid == null || cidState.value == -1L) {
+        if (avid == null || _cidState.value == -1L) {
             return
         }
         bilibiliApi.updateVideoHistory(
             aid = avid!!,
-            cid = cidState.value,
+            cid = _cidState.value,
             csrf = GlobalState.csrfToken,
             progress = progress / 1000
         )
@@ -181,9 +265,18 @@ class VideoPlayBackViewModel @Inject constructor(
                     _snapshotResponse.emit(Resource.Success(data))
                 }
             } catch (e: Exception) {
-                _snapshotResponse.emit(Resource.Error(e.message))
+                _snapshotResponse.emit(Resource.Error(exception = e))
                 Log.e(TAG, "loadSnapshot: load snapshot error", e)
             }
+        }
+    }
+
+    fun changeQn(newQn: Int) {
+        if (_currentQnState.value == newQn) {
+            return
+        }
+        viewModelScope.launch {
+            _currentQnState.emit(newQn)
         }
     }
 
@@ -231,3 +324,9 @@ class VideoPlayerDelegate(
     }
 
 }
+
+data class VideoUrlAndQuality(
+    val qn: Int,
+    val videoUrl: String,
+    val audioUrl: String?
+)

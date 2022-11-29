@@ -6,7 +6,6 @@ import android.view.WindowManager
 import androidx.fragment.app.FragmentActivity
 import androidx.navigation.navArgs
 import com.jing.bilibilitv.R
-import com.jing.bilibilitv.fragment.IBackPressAwareFragment
 import com.jing.bilibilitv.fragment.LbVideoPlaybackFragment
 import dagger.hilt.android.AndroidEntryPoint
 import okhttp3.OkHttpClient
@@ -37,14 +36,4 @@ class VideoPlayActivity : FragmentActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }
 
-
-    override fun onBackPressed() {
-        val fragment = supportFragmentManager.fragments[0]
-        if (fragment is IBackPressAwareFragment) {
-            if (fragment.onBackPressed()) {
-                return
-            }
-        }
-        super.onBackPressed()
-    }
 }

@@ -19,7 +19,6 @@ import android.content.Context
 import android.view.KeyEvent
 import android.view.View
 import androidx.annotation.VisibleForTesting
-import androidx.core.content.ContextCompat
 import androidx.leanback.media.MediaPlayerAdapter
 import androidx.leanback.media.PlaybackTransportControlGlue
 import androidx.leanback.media.PlayerAdapter
@@ -28,7 +27,6 @@ import androidx.leanback.widget.ArrayObjectAdapter
 import androidx.leanback.widget.PlaybackControlsRow.FastForwardAction
 import androidx.leanback.widget.PlaybackControlsRow.RewindAction
 import com.google.android.exoplayer2.ext.leanback.LeanbackPlayerAdapter
-import com.jing.bilibilitv.R
 import java.util.concurrent.TimeUnit
 
 /**
@@ -55,10 +53,23 @@ import java.util.concurrent.TimeUnit
  */
 class ProgressTransportControlGlue<T : PlayerAdapter>(
     context: Context,
-    impl: T,
-    private val onUpdateProgressCb: () -> Unit,
-    private val onChangeQuality: () -> Unit
-) : PlaybackTransportControlGlue<T>(context, impl) {
+    playerAdapter: T,
+    private val onCreatePrimaryAction: (ArrayObjectAdapter) -> Unit = {},
+    private val onCreateSecondaryAction: (ArrayObjectAdapter) -> Unit = {},
+    private val onUpdateProgressCb: () -> Unit = {}
+) : PlaybackTransportControlGlue<T>(context, playerAdapter) {
+
+    private val actionCallbackList = mutableListOf<GlueActionCallback>()
+
+    private var _keyEventInterceptor: (KeyEvent) -> Boolean = { false }
+
+    fun addActionCallback(callback: GlueActionCallback) {
+        actionCallbackList.add(callback)
+    }
+
+    fun setKeyEventInterceptor(interceptor: (KeyEvent) -> Boolean) {
+        _keyEventInterceptor = interceptor
+    }
 
     // Define actions for fast forward and rewind operations.
     @VisibleForTesting
@@ -67,20 +78,14 @@ class ProgressTransportControlGlue<T : PlayerAdapter>(
     @VisibleForTesting
     var skipBackwardAction: RewindAction = RewindAction(context)
 
-    private val videoQualityAction = QualityAction(context)
-
-    private val replayAction = object : Action(20) {
-        init {
-            icon = ContextCompat.getDrawable(context, R.drawable.replay)
-        }
-    }
-
     override fun onCreatePrimaryActions(primaryActionsAdapter: ArrayObjectAdapter) {
         super.onCreatePrimaryActions(primaryActionsAdapter)
-        primaryActionsAdapter.apply {
-            add(replayAction)
-            add(videoQualityAction)
-        }
+        onCreatePrimaryAction.invoke(primaryActionsAdapter)
+    }
+
+    override fun onCreateSecondaryActions(secondaryActionsAdapter: ArrayObjectAdapter) {
+        super.onCreateSecondaryActions(secondaryActionsAdapter)
+        onCreateSecondaryAction.invoke(secondaryActionsAdapter)
     }
 
     override fun onUpdateProgress() {
@@ -92,16 +97,18 @@ class ProgressTransportControlGlue<T : PlayerAdapter>(
         when (action) {
             skipBackwardAction -> skipBackward()
             skipForwardAction -> skipForward()
-            videoQualityAction -> onChangeQuality()
-            replayAction -> {
-                playerAdapter.seekTo(0L)
-                if (!playerAdapter.isPlaying) {
-                    playerAdapter.play()
+            else -> {
+                if (!dispatchAction(action)) {
+                    super.onActionClicked(action)
                 }
-                host.hideControlsOverlay(false)
             }
-            else -> super.onActionClicked(action)
         }
+    }
+
+    private fun dispatchAction(action: Action): Boolean {
+        val cb = actionCallbackList.find { it.support(action) } ?: return false
+        cb.onAction(action)
+        return true
     }
 
     /** Skips backward 30 seconds.  */
@@ -119,19 +126,8 @@ class ProgressTransportControlGlue<T : PlayerAdapter>(
     }
 
 
-    private class QualityAction(context: Context) : Action(10) {
-        init {
-            icon = ContextCompat.getDrawable(context, R.drawable.video_quality)
-        }
-    }
-
-    override fun onKey(v: View?, keyCode: Int, event: KeyEvent?): Boolean {
-        if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER && !host.isControlsOverlayVisible) {
-            if (playerAdapter.isPlaying) {
-                playerAdapter.pause()
-            } else {
-                playerAdapter.play()
-            }
+    override fun onKey(v: View?, keyCode: Int, event: KeyEvent): Boolean {
+        if (_keyEventInterceptor.invoke(event)) {
             return true
         }
         return super.onKey(v, keyCode, event)

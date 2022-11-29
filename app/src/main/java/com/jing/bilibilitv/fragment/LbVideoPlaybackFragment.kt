@@ -2,6 +2,7 @@ package com.jing.bilibilitv.fragment
 
 import android.os.Bundle
 import android.util.Log
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +11,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.leanback.R
 import androidx.leanback.app.VideoSupportFragment
 import androidx.leanback.app.VideoSupportFragmentGlueHost
+import androidx.leanback.widget.Action
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -26,14 +28,10 @@ import com.jing.bilibilitv.danmaku.VideoDanmakuParser
 import com.jing.bilibilitv.danmaku.proto.DanmakuProto
 import com.jing.bilibilitv.dialog.ChooseVideoQualityDialog
 import com.jing.bilibilitv.ext.secondsToDuration
-import com.jing.bilibilitv.http.data.VideoUrlAudio
-import com.jing.bilibilitv.http.data.VideoUrlResponse
-import com.jing.bilibilitv.http.data.VideoUrlVideo
 import com.jing.bilibilitv.model.VideoPlayBackViewModel
 import com.jing.bilibilitv.model.VideoPlayerDelegate
-import com.jing.bilibilitv.playback.AsyncSeekDataProvider
-import com.jing.bilibilitv.playback.ProgressTransportControlGlue
-import com.jing.bilibilitv.playback.createDefaultDanmakuContext
+import com.jing.bilibilitv.model.VideoUrlAndQuality
+import com.jing.bilibilitv.playback.*
 import com.jing.bilibilitv.resource.Resource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -50,7 +48,7 @@ class LbVideoPlaybackFragment(
     private val avid: String?,
     private val bvid: String?,
     private val okHttpClient: OkHttpClient
-) : VideoSupportFragment(), IBackPressAwareFragment {
+) : VideoSupportFragment() {
 
     private val TAG = LbVideoPlaybackFragment::class.java.simpleName
 
@@ -64,17 +62,9 @@ class LbVideoPlaybackFragment(
 
     private var exoPlayerGlue: ProgressTransportControlGlue<LeanbackPlayerAdapter>? = null
 
-    private var qualityList: List<Pair<Int, String>> = emptyList()
-
-    private var videoList: List<VideoUrlVideo> = emptyList()
-
-    private var audioList: List<VideoUrlAudio> = emptyList()
-
     private lateinit var snapshotLoader: ImageLoader
 
     private var seekDataProvider: AsyncSeekDataProvider? = null
-
-    private var currentQuality: Int = -1
 
     private var backPressed = false
 
@@ -101,10 +91,9 @@ class LbVideoPlaybackFragment(
     }
 
     private fun initDanmaku(danmakuElList: List<DanmakuProto.DanmakuElem>) {
-        if (danmakuContext != null) {
-            return
+        if (danmakuContext == null) {
+            danmakuContext = createDefaultDanmakuContext()
         }
-        danmakuContext = createDefaultDanmakuContext()
         danmakuView!!.enableDanmakuDrawingCache(true)
         danmakuView!!.showFPS(BuildConfig.DEBUG)
         danmakuView!!.show()
@@ -138,27 +127,40 @@ class LbVideoPlaybackFragment(
         snapshotLoader = ImageLoader(requireContext())
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.viewUrlState.collectLatest {
-                    if (it is Resource.Success) {
-                        Log.d(TAG, "onViewCreated: video url load success")
-                        onUrlResponse(it.data)
-                        var seekTo = -1L
-                        var showToast = false
-                        if (playerDelegate.resumePosition > 0) {
-                            seekTo = playerDelegate.resumePosition
-                        } else if (it.data.lastPlayTime > 0 && it.data.lastPlayTime / 1000 < it.data.dash!!.duration - 10) {
-                            seekTo = it.data.lastPlayTime
-                            showToast = true
+                viewModel.selectedVideoAndAudio.collectLatest { state ->
+                    when (state) {
+                        is Resource.Success -> {
+                            var seekTo = -1L
+                            var showToast = false
+                            if (playerDelegate.resumePosition > 0) {
+                                seekTo = playerDelegate.resumePosition
+                            } else if (viewModel.lastPlayTime > 0 && viewModel.lastPlayTime / 1000 < viewModel.duration - 10) {
+                                seekTo = viewModel.lastPlayTime
+                                viewModel.lastPlayTime = 0
+                                showToast = true
+                            }
+                            buildMediaSourceAndPlay(state.data, seekTo)
+                            if (showToast) {
+                                Toast.makeText(
+                                    requireContext(),
+                                    "已定位到上次播放位置: ${(seekTo / 1000).secondsToDuration()}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                         }
-                        buildMediaSourceAndPlay(seekTo)
-                        if (showToast) {
+                        is Resource.Error -> {
+                            if (state.exception != null) {
+                                Log.e(TAG, "加载视频链接异常", state.exception)
+                            }
                             Toast.makeText(
                                 requireContext(),
-                                "已定位到上次播放位置: ${(seekTo / 1000).secondsToDuration()}",
-                                Toast.LENGTH_SHORT
+                                "加载视频错误:${state.getErrorMessage()}",
+                                Toast.LENGTH_LONG
                             ).show()
                         }
+                        else -> {}
                     }
+
                 }
             }
         }
@@ -196,29 +198,12 @@ class LbVideoPlaybackFragment(
         }
     }
 
-    private fun onUrlResponse(videoUrlResponse: VideoUrlResponse) {
-        qualityList = videoUrlResponse.supportFormats.map { Pair(it.quality, it.newDescription) }
-        videoList = videoUrlResponse.dash!!.video
-        audioList = videoUrlResponse.dash.audio
-        currentQuality = if (videoList.isNotEmpty()) {
-            videoList.find { it.id < 120 }?.id ?: videoList[0].id
-        } else {
-            -1
-        }
-    }
-
-    private fun buildMediaSourceAndPlay(seekTo: Long = -1) {
-        val video = videoList.find { it.id == currentQuality }
-        if (video == null) {
-            Toast.makeText(requireContext(), "未发现视频", Toast.LENGTH_LONG).show()
-            return
-        }
+    private fun buildMediaSourceAndPlay(videoAndAudio: VideoUrlAndQuality, seekTo: Long = -1) {
         val factory = ProgressiveMediaSource.Factory(exoPlayerDataSourceFactory)
-        val sources = arrayOf(
-            factory.createMediaSource(MediaItem.fromUri(video.baseUrl)), factory.createMediaSource(
-                MediaItem.fromUri(audioList.minBy { it.bandwidth }.baseUrl)
-            )
-        )
+        val urlList = mutableListOf(videoAndAudio.videoUrl)
+        videoAndAudio.audioUrl?.let { urlList.add(it) }
+        val sources =
+            urlList.map { factory.createMediaSource(MediaItem.fromUri(it)) }.toTypedArray()
         exoPlayer!!.setMediaSource(MergingMediaSource(*sources))
         exoPlayer!!.prepare()
         if (seekTo > 0) {
@@ -247,6 +232,28 @@ class LbVideoPlaybackFragment(
         }
     }
 
+    private val replayActionCallback =
+        object : GlueActionCallback {
+            override fun support(action: Action): Boolean = action is ReplayAction
+
+            override fun onAction(action: Action) {
+                exoPlayerGlue?.seekTo(0L)
+                exoPlayerGlue?.play()
+                hideControlsOverlay(true)
+            }
+
+        }
+
+    private val chooseVideoQualityActionCallback =
+        object : GlueActionCallback {
+            override fun support(action: Action): Boolean = action is VideoQualityAction
+
+            override fun onAction(action: Action) {
+                changeQuality()
+            }
+
+        }
+
     override fun onPause() {
         super.onPause()
         exoPlayerGlue?.pause()
@@ -255,13 +262,19 @@ class LbVideoPlaybackFragment(
     private fun prepareGlue(localExoplayer: ExoPlayer) {
         val context = requireContext()
         exoPlayerGlue = ProgressTransportControlGlue(
-            context,
-            LeanbackPlayerAdapter(
+            context = context,
+            playerAdapter = LeanbackPlayerAdapter(
                 context, localExoplayer, 200
             ),
-            { playerDelegate.updateProgress(localExoplayer.currentPosition) },
-            this::changeQuality
-        ).apply {
+            onCreatePrimaryAction = {
+                it.add(VideoQualityAction(requireContext()))
+                it.add(ReplayAction(requireContext()))
+            }
+        ) { playerDelegate.updateProgress(localExoplayer.currentPosition) }.apply {
+            addActionCallback(replayActionCallback)
+            addActionCallback(chooseVideoQualityActionCallback)
+            setKeyEventInterceptor { onKeyEvent(it) }
+
             host = VideoSupportFragmentGlueHost(this@LbVideoPlaybackFragment)
             // Enable seek manually since PlaybackTransportControlGlue.getSeekProvider() is null,
             // so that PlayerAdapter.seekTo(long) will be called during user seeking.
@@ -274,16 +287,13 @@ class LbVideoPlaybackFragment(
     }
 
     private fun changeQuality() {
-        if (qualityList.isEmpty()) {
+        if (viewModel.qualityList.isEmpty()) {
             Toast.makeText(requireContext(), "无可切换的清晰度", Toast.LENGTH_SHORT).show()
             return
         }
         exoPlayer?.pause()
-        ChooseVideoQualityDialog(qualityList, currentQuality) { qn ->
-            val pos = exoPlayer!!.currentPosition
-            currentQuality = qn.first
-            buildMediaSourceAndPlay()
-            exoPlayer!!.seekTo(pos)
+        ChooseVideoQualityDialog(viewModel.qualityList, viewModel.currentQn) { qn ->
+            viewModel.changeQn(qn.first)
         }.apply {
             showNow(this@LbVideoPlaybackFragment.requireActivity().supportFragmentManager, "")
         }
@@ -307,22 +317,32 @@ class LbVideoPlaybackFragment(
         }
     }
 
-
-    override fun onBackPressed(): Boolean {
-        if (!playerDelegate.isPlaying) {
-            backPressed = false
-            return false
+    fun onKeyEvent(keyEvent: KeyEvent): Boolean {
+        if (keyEvent.keyCode == KeyEvent.KEYCODE_BACK) {
+            if (!playerDelegate.isPlaying) {
+                backPressed = false
+                return false
+            }
+            if (backPressed) {
+                return false
+            }
+            backPressed = true
+            Toast.makeText(requireContext(), "再按一次退出播放", Toast.LENGTH_SHORT).show()
+            lifecycleScope.launch {
+                delay(2000)
+                backPressed = false
+            }
+            return true
         }
-        if (backPressed) {
-            return false
+        if (keyEvent.keyCode == KeyEvent.KEYCODE_DPAD_CENTER && !isControlsOverlayVisible) {
+            if (exoPlayer?.isPlaying == true) {
+                exoPlayer?.pause()
+            } else {
+                exoPlayer?.play()
+            }
+            return true
         }
-        backPressed = true
-        Toast.makeText(requireContext(), "再按一次退出播放", Toast.LENGTH_SHORT).show()
-        lifecycleScope.launch {
-            delay(2000)
-            backPressed = false
-        }
-        return true
+        return false
     }
 
     override fun onDestroy() {

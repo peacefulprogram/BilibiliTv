@@ -35,7 +35,7 @@ class RecommendationViewModel @Inject constructor(
                         ?: throw RuntimeException("未查到数据")
                 _recommendationState.emit(Resource.Success(videoList))
             } catch (e: Exception) {
-                _recommendationState.emit(Resource.Error(e.message))
+                _recommendationState.emit(Resource.Error(exception = e))
             }
         }
     }

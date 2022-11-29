@@ -1,4 +1,8 @@
 <resources>
 
     <style name="Theme.BilibiliTv" parent="@style/Theme.Leanback" />
+
+    <style name="playbackDialog">
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
 </resources>
