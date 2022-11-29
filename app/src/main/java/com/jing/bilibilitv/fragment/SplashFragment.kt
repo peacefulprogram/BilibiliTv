@@ -14,13 +14,10 @@ import com.jing.bilibilitv.GlobalState
 import com.jing.bilibilitv.R
 import com.jing.bilibilitv.http.cookie.BilibiliCookieJar
 import com.jing.bilibilitv.http.cookie.BilibiliCookieName
-import com.jing.bilibilitv.http.data.UserInfo
 import com.jing.bilibilitv.model.LoginUserViewModel
 import com.jing.bilibilitv.room.dao.BlCookieDao
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -60,23 +57,16 @@ class SplashFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         lifecycleScope.launch(Dispatchers.IO) {
-            val fetchUser = async {
-                try {
-                    userViewModel.fetchUser()
-                } catch (e: Exception) {
-                    Log.e(TAG, "onCreateView: fetch user failed", e)
-                    null
-                }
+            cookieJar.loadCookieFromDatabase()
+            GlobalState.csrfToken =
+                blCookieDao.findByCookieName(BilibiliCookieName.BILI_JCT.cookieName)?.cookieValue
+                    ?: ""
+            val userInfo = try {
+                userViewModel.fetchUser()
+            } catch (e: Exception) {
+                Log.e(TAG, "onCreateView: fetch user failed", e)
+                null
             }
-            val jb = async { cookieJar.loadCookieFromDatabase() }
-            val jb1 =
-                async {
-                    GlobalState.csrfToken =
-                        blCookieDao.findByCookieName(BilibiliCookieName.BILI_JCT.cookieName)?.cookieValue
-                            ?: ""
-                }
-            val result = listOf(fetchUser, jb, jb1).awaitAll()
-            val userInfo = result[0] as UserInfo?
             val hasLogin = userInfo != null && userInfo.isLogin
             navigateToLoginOrHomePage(hasLogin)
         }
