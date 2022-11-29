@@ -120,9 +120,8 @@ class ChooseVideoQualityDialog(
                 state: RecyclerView.State
             ) {
                 super.getItemOffsets(outRect, view, parent, state)
-                outRect.bottom = 20
-                outRect.right = 20
-                outRect.left = 20
+                outRect.top = 10
+                outRect.bottom = 10
             }
         })
         return recyclerView
