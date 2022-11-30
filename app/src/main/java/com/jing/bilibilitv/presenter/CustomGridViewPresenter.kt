@@ -19,17 +19,19 @@ class CustomGridViewPresenter(
 
     private val TAG = CustomGridViewPresenter::class.java.simpleName
 
+    var gridView: CustomGridView? = null
+
     /**
      * 改为自定义grid view
      */
     override fun createGridViewHolder(parent: ViewGroup?): ViewHolder {
-        val gridView = LayoutInflater.from(parent!!.context)
+        gridView = LayoutInflater.from(parent!!.context)
             .inflate(R.layout.custom_lb_grid_view_layout, parent, false) as CustomGridView
-        gridView.findSelectedTabView = {
+        gridView!!.findSelectedTabView = {
             getSelectedTabView()
         }
-        gridView.setOnKeyInterceptListener { keyEvent ->
-            keyEventInterceptor(keyEvent, gridView)
+        gridView!!.setOnKeyInterceptListener { keyEvent ->
+            keyEventInterceptor(keyEvent, gridView!!)
         }
         return ViewHolder(gridView)
     }

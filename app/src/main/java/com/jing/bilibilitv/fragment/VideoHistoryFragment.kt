@@ -35,12 +35,14 @@ class VideoHistoryFragment(private val getSelectTabView: () -> View? = { null })
 
     private var pagingAdapter: PagingDataAdapter<HistoryItem>? = null
 
+    private lateinit var mGridPresenter: CustomGridViewPresenter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (pagingAdapter == null) {
             pagingAdapter = PagingDataAdapter(VideoHistoryPresenter(), VideoHistoryDiff)
         }
-        gridPresenter =
+        mGridPresenter =
             CustomGridViewPresenter(
                 focusZoomFactor = FocusHighlight.ZOOM_FACTOR_NONE,
                 useFocusDimmer = false,
@@ -52,6 +54,7 @@ class VideoHistoryFragment(private val getSelectTabView: () -> View? = { null })
             ).apply {
                 numberOfColumns = 4
             }
+        gridPresenter = mGridPresenter
         adapter = pagingAdapter
         progressBarManager.enableProgressBar()
         progressBarManager.initialDelay = 0
@@ -145,6 +148,9 @@ class VideoHistoryFragment(private val getSelectTabView: () -> View? = { null })
     }
 
     private fun refreshData() {
+        if ((mGridPresenter.gridView?.childCount ?: 0) > 0) {
+            mGridPresenter.gridView?.setSelectedPositionSmooth(0)
+        }
         pagingAdapter?.refresh()
     }
 
