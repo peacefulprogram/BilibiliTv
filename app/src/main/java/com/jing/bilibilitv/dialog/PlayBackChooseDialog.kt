@@ -16,17 +16,21 @@ import com.jing.bilibilitv.databinding.ChooseItemIndicatorLayoutBinding
 import com.jing.bilibilitv.ext.getColorWithAlpha
 import com.jing.bilibilitv.ext.toPx
 
-class ChooseVideoQualityDialog(
-    private val qualityList: List<Pair<Int, String>>,
-    private val currentQn: Int,
-    private val onChoose: (Pair<Int, String>) -> Unit
+class PlayBackChooseDialog<T>(
+    private val dataList: List<T>,
+    private val defaultSelectIndex: Int,
+    private val viewWidth: Int,
+    private val getText: (Int, T) -> String,
+    private val onChoose: (T) -> Unit
 ) : DialogFragment() {
+
+    private lateinit var recyclerView: RecyclerView
 
     override fun onStart() {
         super.onStart()
         dialog?.window?.attributes?.run {
             height = WindowManager.LayoutParams.MATCH_PARENT
-            width = 130.toPx.toInt()
+            width = viewWidth.toPx.toInt()
             gravity = Gravity.END
             dialog!!.window!!.attributes = this
         }
@@ -37,6 +41,9 @@ class ChooseVideoQualityDialog(
                 0.3f
             ).toDrawable()
         )
+        if (defaultSelectIndex >= 0 && defaultSelectIndex < dataList.size) {
+            recyclerView.smoothScrollToPosition(defaultSelectIndex)
+        }
     }
 
 
@@ -45,21 +52,14 @@ class ChooseVideoQualityDialog(
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val recyclerView = RecyclerView(requireContext()).apply {
-//            layoutManager = FlexboxLayoutManager(requireContext()).apply {
-//                flexDirection = FlexDirection.COLUMN
-//                flexWrap = FlexWrap.NOWRAP
-//                justifyContent = JustifyContent.CENTER
-//            }
-//            layoutParams = LayoutParams(
-//                WindowManager.LayoutParams.MATCH_PARENT,
-//                WindowManager.LayoutParams.MATCH_PARENT
-//            )
+        recyclerView = RecyclerView(requireContext()).apply {
             layoutManager = LinearLayoutManager(requireContext())
         }
         recyclerView.adapter = object : Adapter<ChooseItemViewHolder>() {
 
-            private val choosenColor = ContextCompat.getColor(requireContext(), R.color.rose400)
+            private var init = false
+
+            private val chosenColor = ContextCompat.getColor(requireContext(), R.color.rose400)
             private val blurColor = ContextCompat.getColor(requireContext(), R.color.gray200)
             override fun onCreateViewHolder(
                 parent: ViewGroup,
@@ -76,9 +76,9 @@ class ChooseVideoQualityDialog(
 
             override fun onBindViewHolder(holder: ChooseItemViewHolder, position: Int) {
                 with(holder.viewBinding) {
-                    textContainer.text = qualityList[position].second
-                    if (currentQn == qualityList[position].first) {
-                        textContainer.setTextColor(choosenColor)
+                    textContainer.text = getText(position, dataList[position])
+                    if (defaultSelectIndex == position) {
+                        textContainer.setTextColor(chosenColor)
                     } else {
                         textContainer.setTextColor(blurColor)
                     }
@@ -86,21 +86,20 @@ class ChooseVideoQualityDialog(
 
                 with(holder.viewBinding.root) {
                     setOnClickListener {
-                        onChoose(qualityList[position])
+                        onChoose(dataList[position])
                         dismissNow()
                     }
                     onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
                         holder.viewBinding.root.background = if (hasFocus) {
                             requireContext().getColorWithAlpha(
-                                com.jing.bilibilitv.R.color.gray600,
+                                R.color.gray600,
                                 0.4f
                             ).toDrawable()
                         } else {
                             ColorDrawable(Color.TRANSPARENT)
                         }
                         with(holder.viewBinding.indicator) {
-//                            holder.viewBinding.indicator.text = "12345678"
-                            background = ColorDrawable(choosenColor)
+                            background = ColorDrawable(chosenColor)
                             visibility = if (hasFocus) View.VISIBLE else View.INVISIBLE
                         }
                     }
@@ -108,7 +107,19 @@ class ChooseVideoQualityDialog(
             }
 
             override fun getItemCount(): Int {
-                return qualityList.size
+                return dataList.size
+            }
+
+            override fun onBindViewHolder(
+                holder: ChooseItemViewHolder,
+                position: Int,
+                payloads: MutableList<Any>
+            ) {
+                super.onBindViewHolder(holder, position, payloads)
+                if (!init && position == defaultSelectIndex) {
+                    holder.viewBinding.root.requestFocus()
+                    init = true
+                }
             }
 
         }

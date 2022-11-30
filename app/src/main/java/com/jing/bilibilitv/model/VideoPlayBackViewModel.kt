@@ -58,7 +58,10 @@ class VideoPlayBackViewModel @Inject constructor(
     private var loadDanmakuJob: Job? = null
 
     @Volatile
-    private var videoPages: List<PageX> = emptyList()
+    private var _videoPages: List<PageX> = emptyList()
+
+    val videoPages: List<PageX>
+        get() = _videoPages
 
     private var _danmakuData: MutableStateFlow<Resource<List<DanmakuProto.DanmakuElem>>> =
         MutableStateFlow(Resource.Loading())
@@ -181,21 +184,21 @@ class VideoPlayBackViewModel @Inject constructor(
         this.bvid = bvid
         viewModelScope.launch(Dispatchers.IO) {
             bilibiliApi.getVideoDetail(bvid, avid).data?.view?.let { detail ->
-                videoPages = detail.pages
-                if (videoPages.size > 1) {
+                _videoPages = detail.pages
+                if (_videoPages.size > 1) {
                     bilibiliApi.getLastPlayInfo(avid, bvid, detail.cid).data?.let { lastPlay ->
                         if (lastPlay.lastPlayCid > 0) {
                             _cidState.emit(lastPlay.lastPlayCid)
                             lastPlayTime = lastPlay.lastPlayTime
-                            _titleSate.emit(videoPages.find { it.cid == lastPlay.lastPlayCid }!!.part)
+                            _titleSate.emit(_videoPages.find { it.cid == lastPlay.lastPlayCid }!!.part)
                         } else {
-                            _cidState.emit(videoPages[0].cid)
-                            _titleSate.emit(videoPages[0].part)
+                            _cidState.emit(_videoPages[0].cid)
+                            _titleSate.emit(_videoPages[0].part)
                         }
                     }
                 } else {
-                    _cidState.emit(videoPages[0].cid)
-                    _titleSate.emit(videoPages[0].part)
+                    _cidState.emit(_videoPages[0].cid)
+                    _titleSate.emit(_videoPages[0].part)
                 }
             }
         }

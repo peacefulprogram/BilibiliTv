@@ -26,7 +26,7 @@ import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.jing.bilibilitv.BuildConfig
 import com.jing.bilibilitv.danmaku.VideoDanmakuParser
 import com.jing.bilibilitv.danmaku.proto.DanmakuProto
-import com.jing.bilibilitv.dialog.ChooseVideoQualityDialog
+import com.jing.bilibilitv.dialog.PlayBackChooseDialog
 import com.jing.bilibilitv.ext.secondsToDuration
 import com.jing.bilibilitv.model.VideoPlayBackViewModel
 import com.jing.bilibilitv.model.VideoPlayerDelegate
@@ -254,6 +254,34 @@ class LbVideoPlaybackFragment(
 
         }
 
+    private val playListActionCallback = object : GlueActionCallback {
+        override fun support(action: Action): Boolean = action is PlayListAction
+
+        override fun onAction(action: Action) {
+            openPlayListDialogAndChoose()
+        }
+
+    }
+
+
+    private fun openPlayListDialogAndChoose() {
+        if (viewModel.videoPages.isEmpty()) {
+            Toast.makeText(requireContext(), "暂无可选分P", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (isControlsOverlayVisible) {
+            hideControlsOverlay(false)
+        }
+        PlayBackChooseDialog(
+            viewModel.videoPages,
+            viewModel.videoPages.indexOfFirst { it.cid == viewModel.currentCid },
+            viewWidth = 300,
+            getText = { index, page -> "${index + 1}.${page.part}" },
+        ) {
+            viewModel.changePage(it)
+        }.showNow(requireActivity().supportFragmentManager, "")
+    }
+
     override fun onPause() {
         super.onPause()
         exoPlayerGlue?.pause()
@@ -269,10 +297,12 @@ class LbVideoPlaybackFragment(
             onCreatePrimaryAction = {
                 it.add(VideoQualityAction(requireContext()))
                 it.add(ReplayAction(requireContext()))
+                it.add(PlayListAction(requireContext()))
             }
         ) { playerDelegate.updateProgress(localExoplayer.currentPosition) }.apply {
             addActionCallback(replayActionCallback)
             addActionCallback(chooseVideoQualityActionCallback)
+            addActionCallback(playListActionCallback)
             setKeyEventInterceptor { onKeyEvent(it) }
 
             host = VideoSupportFragmentGlueHost(this@LbVideoPlaybackFragment)
@@ -291,9 +321,16 @@ class LbVideoPlaybackFragment(
             Toast.makeText(requireContext(), "无可切换的清晰度", Toast.LENGTH_SHORT).show()
             return
         }
-        exoPlayer?.pause()
-        ChooseVideoQualityDialog(viewModel.qualityList, viewModel.currentQn) { qn ->
-            viewModel.changeQn(qn.first)
+        if (isControlsOverlayVisible) {
+            hideControlsOverlay(false)
+        }
+        PlayBackChooseDialog(
+            viewModel.qualityList,
+            viewModel.qualityList.indexOfFirst { it.first == viewModel.currentQn },
+            viewWidth = 130,
+            getText = { _, qn -> qn.second }
+        ) {
+            viewModel.changeQn(it.first)
         }.apply {
             showNow(this@LbVideoPlaybackFragment.requireActivity().supportFragmentManager, "")
         }

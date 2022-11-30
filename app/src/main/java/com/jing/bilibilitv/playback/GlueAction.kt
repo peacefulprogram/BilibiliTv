@@ -16,3 +16,9 @@ class VideoQualityAction(context: Context) : Action(20) {
         icon = ContextCompat.getDrawable(context, R.drawable.video_quality)
     }
 }
+
+class PlayListAction(context: Context) : Action(30) {
+    init {
+        icon = ContextCompat.getDrawable(context, R.drawable.play_list)
+    }
+}
