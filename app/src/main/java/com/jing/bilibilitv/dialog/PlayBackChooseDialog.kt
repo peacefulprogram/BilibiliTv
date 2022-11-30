@@ -1,5 +1,6 @@
 package com.jing.bilibilitv.dialog
 
+import android.content.DialogInterface
 import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
@@ -25,6 +26,8 @@ class PlayBackChooseDialog<T>(
 ) : DialogFragment() {
 
     private lateinit var recyclerView: RecyclerView
+
+    var dismissListener: () -> Unit = {}
 
     override fun onStart() {
         super.onStart()
@@ -142,5 +145,10 @@ class PlayBackChooseDialog<T>(
     private class ChooseItemViewHolder(val viewBinding: ChooseItemIndicatorLayoutBinding) :
         ViewHolder(viewBinding.root)
 
+
+    override fun onDismiss(dialog: DialogInterface) {
+        super.onDismiss(dialog)
+        dismissListener()
+    }
 
 }

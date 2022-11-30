@@ -72,6 +72,8 @@ class LbVideoPlaybackFragment(
 
     private var danmakuContext: DanmakuContext? = null
 
+    private var isChooseDialogShown = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel.init(avid = avid, bvid = bvid)
@@ -279,7 +281,9 @@ class LbVideoPlaybackFragment(
             getText = { index, page -> "${index + 1}.${page.part}" },
         ) {
             viewModel.changePage(it)
-        }.showNow(requireActivity().supportFragmentManager, "")
+        }.apply {
+            showDialog(this)
+        }
     }
 
     override fun onPause() {
@@ -332,7 +336,7 @@ class LbVideoPlaybackFragment(
         ) {
             viewModel.changeQn(it.first)
         }.apply {
-            showNow(this@LbVideoPlaybackFragment.requireActivity().supportFragmentManager, "")
+            showDialog(this)
         }
     }
 
@@ -379,7 +383,21 @@ class LbVideoPlaybackFragment(
             }
             return true
         }
+
+        if (keyEvent.keyCode == KeyEvent.KEYCODE_MENU) {
+            openPlayListDialogAndChoose()
+            return true
+        }
         return false
+    }
+
+    private fun <T> showDialog(dialog: PlayBackChooseDialog<T>) {
+        if (isChooseDialogShown) {
+            return
+        }
+        isChooseDialogShown = true
+        dialog.dismissListener = { isChooseDialogShown = false }
+        dialog.showNow(requireActivity().supportFragmentManager, "")
     }
 
     override fun onDestroy() {
