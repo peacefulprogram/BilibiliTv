@@ -210,6 +210,15 @@ interface BilibiliApi {
         @Query("keyworkd") keyword: String? = null
     ): CommonDataResponse<AuthorVideoResponse>
 
+
+    /**
+     * 查询番剧详情
+     */
+    @GET("/pgc/view/web/season")
+    suspend fun getPgcDetail(
+        @Query("ep_id") epid: Long
+    ): PgcDetailResponse
+
     companion object {
         const val BASE_URL = "https://api.bilibili.com"
     }
