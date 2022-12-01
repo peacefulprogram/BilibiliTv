@@ -192,6 +192,24 @@ interface BilibiliApi {
         @Query("type") type: Int = 1,
     ): ResponseBody
 
+
+    /**
+     * 查询用户发布的视频
+     * @param mid 用户id
+     * @param order 排序方式,最新发布：pubdate,最多播放：click,最多收藏：stow
+     * @param tid 分区id
+     * @param keyword 关键词
+     */
+    @GET("/x/space/arc/search")
+    suspend fun getAuthorVideo(
+        @Query("mid") mid: Long,
+        @Query("pn") pageNumber: Int,
+        @Query("ps") pageSize: Int,
+        @Query("order") order: String = "pubdate",
+        @Query("tid") tid: Long? = null,
+        @Query("keyworkd") keyword: String? = null
+    ): CommonDataResponse<AuthorVideoResponse>
+
     companion object {
         const val BASE_URL = "https://api.bilibili.com"
     }
