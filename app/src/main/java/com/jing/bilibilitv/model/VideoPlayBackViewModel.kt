@@ -126,6 +126,7 @@ class VideoPlayBackViewModel @Inject constructor(
                 _selectedVideoAndAudio.emit(
                     Resource.Success(
                         VideoUrlAndQuality(
+                            cid = currentCid,
                             qn = video.id,
                             videoUrl = video.baseUrl,
                             audioUrl = audioUrl
@@ -329,6 +330,7 @@ class VideoPlayerDelegate(
 }
 
 data class VideoUrlAndQuality(
+    val cid: Long,
     val qn: Int,
     val videoUrl: String,
     val audioUrl: String?

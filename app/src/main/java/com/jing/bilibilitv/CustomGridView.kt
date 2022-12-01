@@ -2,11 +2,15 @@ package com.jing.bilibilitv
 
 import android.content.Context
 import android.util.AttributeSet
+import android.util.Log
+import android.view.KeyEvent
 import android.view.View
 import androidx.leanback.widget.VerticalGridView
 
 class CustomGridView(context: Context, attr: AttributeSet) :
     VerticalGridView(context, attr) {
+
+    private val TAG = CustomGridView::class.java.simpleName
 
     private var columnCount = 1
 
@@ -31,6 +35,11 @@ class CustomGridView(context: Context, attr: AttributeSet) :
             }
         }
         return super.focusSearch(focused, direction)
+    }
+
+    override fun onKeyLongPress(keyCode: Int, event: KeyEvent?): Boolean {
+        Log.d(TAG, "onKeyLongPress:")
+        return super.onKeyLongPress(keyCode, event)
     }
 
 }

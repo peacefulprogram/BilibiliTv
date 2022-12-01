@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
 import androidx.leanback.app.VerticalGridSupportFragment
@@ -53,6 +54,20 @@ class LeanbackDynamicFragment(private val getSelectTabView: () -> View? = { null
                 )
             ).apply {
                 numberOfColumns = 4
+                setOnLongClickListener { _, item ->
+                    if (item != null) {
+                        with(item as DynamicItem) {
+                            Toast.makeText(
+                                requireContext(),
+                                "长按:${modules.moduleAuthor.name}",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        true
+                    } else {
+                        false
+                    }
+                }
             }
         gridPresenter = mGridPresenter
         progressBarManager.enableProgressBar()
@@ -156,9 +171,7 @@ class LeanbackDynamicFragment(private val getSelectTabView: () -> View? = { null
     }
 
     private fun refreshData() {
-        if ((mGridPresenter.gridView?.childCount ?: 0) > 0) {
-            mGridPresenter.gridView?.setSelectedPositionSmooth(0)
-        }
+        setSelectedPosition(0)
         pagingAdapter?.refresh()
     }
 
