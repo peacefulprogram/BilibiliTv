@@ -125,6 +125,10 @@ class ProgressTransportControlGlue<T : PlayerAdapter>(
         playerAdapter.seekTo(newPosition)
     }
 
+    fun notifyActionIconChange(action: Action) {
+        notifyItemChanged(controlsRow.primaryActionsAdapter as ArrayObjectAdapter, action)
+        notifyItemChanged(controlsRow.secondaryActionsAdapter as ArrayObjectAdapter, action)
+    }
 
     override fun onKey(v: View?, keyCode: Int, event: KeyEvent): Boolean {
         if (_keyEventInterceptor.invoke(event)) {

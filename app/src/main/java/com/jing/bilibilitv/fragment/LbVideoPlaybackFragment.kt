@@ -74,6 +74,8 @@ class LbVideoPlaybackFragment(
 
     private var isChooseDialogShown = false
 
+    private lateinit var playbackRoot: ViewGroup
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel.init(avid = avid, bvid = bvid)
@@ -87,12 +89,16 @@ class LbVideoPlaybackFragment(
     ): View? {
         val root = super.onCreateView(inflater, container, savedInstanceState)
         danmakuView = DanmakuView(requireContext())
-        val playbackRoot = root!!.findViewById<ViewGroup>(R.id.playback_fragment_root)
+        playbackRoot = root!!.findViewById<ViewGroup>(R.id.playback_fragment_root)
         playbackRoot.addView(danmakuView, 1)
         return root
     }
 
     private fun initDanmaku(danmakuElList: List<DanmakuProto.DanmakuElem>) {
+        if (danmakuElList.isEmpty()) {
+            disableDanmaku()
+            return
+        }
         if (danmakuContext == null) {
             danmakuContext = createDefaultDanmakuContext()
         }
@@ -116,6 +122,11 @@ class LbVideoPlaybackFragment(
             override fun drawingFinished() {}
         })
         danmakuView?.prepare(VideoDanmakuParser(danmakuElList), danmakuContext)
+    }
+
+    private fun disableDanmaku() {
+        danmakuContext = null
+        danmakuView?.release()
     }
 
     override fun onStart() {
@@ -265,6 +276,21 @@ class LbVideoPlaybackFragment(
 
     }
 
+    private val danmuToggleActionCallback = object : GlueActionCallback {
+        override fun support(action: Action): Boolean = action is DanmuToggleAction
+
+        override fun onAction(action: Action) {
+            toggleDanmu(action as DanmuToggleAction)
+        }
+
+    }
+
+    private fun toggleDanmu(action: DanmuToggleAction) {
+        action.toggleState()
+        viewModel.toggleDanmuState()
+        exoPlayerGlue?.notifyActionIconChange(action)
+    }
+
 
     private fun openPlayListDialogAndChoose() {
         if (viewModel.videoPages.isEmpty()) {
@@ -299,6 +325,7 @@ class LbVideoPlaybackFragment(
                 context, localExoplayer, 200
             ),
             onCreatePrimaryAction = {
+                it.add(DanmuToggleAction(requireContext(), viewModel.danmuEnable.value))
                 it.add(VideoQualityAction(requireContext()))
                 it.add(ReplayAction(requireContext()))
                 it.add(PlayListAction(requireContext()))
@@ -307,6 +334,7 @@ class LbVideoPlaybackFragment(
             addActionCallback(replayActionCallback)
             addActionCallback(chooseVideoQualityActionCallback)
             addActionCallback(playListActionCallback)
+            addActionCallback(danmuToggleActionCallback)
             setKeyEventInterceptor { onKeyEvent(it) }
 
             host = VideoSupportFragmentGlueHost(this@LbVideoPlaybackFragment)

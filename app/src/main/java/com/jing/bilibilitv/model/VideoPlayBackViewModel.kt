@@ -33,6 +33,11 @@ class VideoPlayBackViewModel @Inject constructor(
     val currentQn: Int
         get() = _currentQnState.value
 
+    private val _danmuEnable = MutableStateFlow(true)
+
+    val danmuEnable: StateFlow<Boolean>
+        get() = _danmuEnable
+
     private val _cidState: MutableStateFlow<Long> = MutableStateFlow(-1)
 
     val currentCid: Long
@@ -93,6 +98,18 @@ class VideoPlayBackViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
+            _danmuEnable.collectLatest { enable ->
+                if (enable) {
+                    if (currentCid > 0) {
+                        loadDanmaku(currentCid)
+                    }
+                } else {
+                    _danmakuData.emit(Resource.Success(emptyList()))
+                }
+            }
+        }
+
+        viewModelScope.launch {
             _currentQnState.collectLatest { qn ->
                 val selectedVideo = _selectedVideoAndAudio.value
                 if (selectedVideo is Resource.Success && selectedVideo.data.qn == qn) {
@@ -149,7 +166,9 @@ class VideoPlayBackViewModel @Inject constructor(
         if (cid == -1L) {
             return
         }
-        loadDanmaku(cid)
+        if (_danmuEnable.value) {
+            loadDanmaku(cid)
+        }
         loadVideoUrl(cid)
         loadSnapshot(avid, bvid, cid)
     }
@@ -160,6 +179,12 @@ class VideoPlayBackViewModel @Inject constructor(
                 _titleSate.emit(page.part)
                 _cidState.emit(page.cid)
             }
+        }
+    }
+
+    fun toggleDanmuState() {
+        viewModelScope.launch(Dispatchers.Default) {
+            _danmuEnable.emit(!_danmuEnable.value)
         }
     }
 
