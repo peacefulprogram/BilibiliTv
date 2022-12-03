@@ -97,9 +97,9 @@ data class LastPlayGuideAttention(
     @SerializedName("from")
     val from: Long,
     @SerializedName("pos_x")
-    val posX: Long,
+    val posX: Double,
     @SerializedName("pos_y")
-    val posY: Long,
+    val posY: Double,
     @SerializedName("to")
     val to: Long,
     @SerializedName("type")
