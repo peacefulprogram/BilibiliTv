@@ -15,6 +15,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import androidx.paging.LoadState
 import androidx.recyclerview.widget.DiffUtil
 import coil.load
 import coil.transform.RoundedCornersTransformation
@@ -37,10 +38,23 @@ class VideoHistoryFragment(private val getSelectTabView: () -> View? = { null })
 
     private lateinit var mGridPresenter: CustomGridViewPresenter
 
+    private var startRefresh = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (pagingAdapter == null) {
-            pagingAdapter = PagingDataAdapter(VideoHistoryPresenter(), VideoHistoryDiff)
+            pagingAdapter = PagingDataAdapter(VideoHistoryPresenter(), VideoHistoryDiff).apply {
+                this.addLoadStateListener {
+                    when (it.refresh) {
+                        LoadState.Loading -> startRefresh = true
+                        is LoadState.NotLoading -> if (startRefresh) {
+                            startRefresh = false
+                            mGridPresenter.gridView?.selectedPosition = 0
+                        }
+                        else -> {}
+                    }
+                }
+            }
         }
         mGridPresenter =
             CustomGridViewPresenter(

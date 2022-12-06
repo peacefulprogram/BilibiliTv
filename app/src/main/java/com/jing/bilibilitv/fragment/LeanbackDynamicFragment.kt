@@ -1,6 +1,7 @@
 package com.jing.bilibilitv.fragment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,6 +17,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import androidx.paging.LoadState
 import androidx.recyclerview.widget.DiffUtil
 import coil.load
 import coil.transform.RoundedCornersTransformation
@@ -31,16 +33,32 @@ import kotlinx.coroutines.launch
 class LeanbackDynamicFragment(private val getSelectTabView: () -> View? = { null }) :
     VerticalGridSupportFragment(), IVPShowAwareFragment, IRefreshableFragment {
 
+    private val TAG = LeanbackDynamicFragment::class.java.simpleName
+
     private val viewModel by activityViewModels<DynamicViewModel>()
 
     private var pagingAdapter: PagingDataAdapter<DynamicItem>? = null
 
     private lateinit var mGridPresenter: CustomGridViewPresenter
 
+    private var startRefresh = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (pagingAdapter == null) {
-            pagingAdapter = PagingDataAdapter(DynamicItemPresenter(), DynamicComparator)
+            pagingAdapter = PagingDataAdapter(DynamicItemPresenter(), DynamicComparator).apply {
+                this.addLoadStateListener {
+                    when (it.refresh) {
+                        LoadState.Loading -> startRefresh = true
+                        is LoadState.NotLoading -> if (startRefresh) {
+                            startRefresh = false
+                            mGridPresenter.gridView?.selectedPosition = 0
+                            Log.d(TAG, "dynamic refresh finish,thread ${Thread.currentThread()}")
+                        }
+                        else -> {}
+                    }
+                }
+            }
         }
         adapter = pagingAdapter
         mGridPresenter =
