@@ -1,17 +1,24 @@
 package com.jing.bilibilitv.fragment
 
+import android.graphics.Rect
 import android.os.Bundle
-import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
+import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentPagerAdapter
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.ItemDecoration
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import androidx.viewpager.widget.PagerAdapter
-import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
+import com.jing.bilibilitv.R
 import com.jing.bilibilitv.databinding.HomeFragmentLayoutBinding
+import com.jing.bilibilitv.ext.toPx
 import com.jing.bilibilitv.http.api.BilibiliApi
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -28,18 +35,19 @@ class HomeFragment : Fragment() {
 
     private lateinit var viewBinding: HomeFragmentLayoutBinding
 
-    private fun getSelectTabview(): View? =
-        viewBinding.tabContainer.getTabAt(viewBinding.tabContainer.selectedTabPosition)?.view
+    private var defaultSelectTabIndex = 1
 
-    private val defaultSelectTabIndex = 1
+    private lateinit var tabItems: List<CustomTabItem>
+
+    private var selectedTabColor: Int = 0
+    private var unselectedTabColor: Int = 0
 
 
     private val pagerFragmentList by lazy<List<Pair<String, Fragment>>> {
-        Log.d(TAG, "create pager fragment: ")
         listOf(
-            Pair("历史", VideoHistoryFragment(this::getSelectTabview)),
-            Pair("推荐", LeanbackRecommendationFragment(this::getSelectTabview)),
-            Pair("动态", LeanbackDynamicFragment(this::getSelectTabview))
+            Pair("历史", VideoHistoryFragment { viewBinding.tabContainer }),
+            Pair("推荐", LeanbackRecommendationFragment { viewBinding.tabContainer }),
+            Pair("动态", LeanbackDynamicFragment { viewBinding.tabContainer })
         )
     }
 
@@ -54,35 +62,66 @@ class HomeFragment : Fragment() {
             pagerAdapter = buildPagerAdapter()
         }
         viewBinding.pager.adapter = pagerAdapter
-        viewBinding.tabContainer.addOnTabSelectedListener(object : OnTabSelectedListener {
-            override fun onTabSelected(tab: TabLayout.Tab?) {
-                val target = pagerFragmentList[viewBinding.tabContainer.selectedTabPosition].second
-                if (target is IVPShowAwareFragment && target.activity != null) target.onVPShow()
-            }
+        initTabItems()
+        selectedTabColor = ContextCompat.getColor(requireContext(), R.color.gray50)
+        unselectedTabColor = ContextCompat.getColor(requireContext(), R.color.gray400)
 
-            override fun onTabUnselected(tab: TabLayout.Tab?) {
-            }
-
-            override fun onTabReselected(tab: TabLayout.Tab?) {
-            }
-
-        })
-        viewBinding.tabContainer.addOnUnhandledKeyEventListener { _, event ->
-            var result = false
-            if (event.keyCode == KeyEvent.KEYCODE_MENU) {
-                val target = pagerFragmentList[viewBinding.tabContainer.selectedTabPosition].second
-                if (target is IRefreshableFragment && target.activity != null) {
-                    target.doRefresh()
-                    result = true
+        viewBinding.tabContainer.apply {
+            lastFocusedPosition = defaultSelectTabIndex
+            addItemDecoration(object : ItemDecoration() {
+                override fun getItemOffsets(
+                    outRect: Rect,
+                    view: View,
+                    parent: RecyclerView,
+                    state: RecyclerView.State
+                ) {
+                    val gap = 20.toPx.toInt()
+                    outRect.left = gap
+                    outRect.right = gap
+                    outRect.top = gap
+                }
+            })
+            viewTreeObserver.addOnGlobalFocusChangeListener { oldView, newView ->
+                var newViewInTab = false
+                val scale = 1.5f
+                if (newView?.parent == viewBinding.tabContainer) {
+                    newViewInTab = true
+                    (newView as TextView).setTextColor(selectedTabColor)
+                    newView.scaleX = scale
+                    newView.scaleY = scale
+                }
+                if (oldView?.parent == viewBinding.tabContainer) {
+                    oldView.scaleX = 1f
+                    oldView.scaleY = 1f
+                    if (newViewInTab) {
+                        (oldView as TextView).setTextColor(unselectedTabColor)
+                    }
                 }
             }
-            result
+            layoutManager =
+                LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+            adapter = TabItemAdapter {
+                if (viewBinding.pager.currentItem != it) {
+                    viewBinding.pager.currentItem = it
+                }
+            }
         }
-        viewBinding.tabContainer.setupWithViewPager(viewBinding.pager)
-        viewBinding.tabContainer.getTabAt(defaultSelectTabIndex)?.select()
         return viewBinding.root
     }
 
+    private fun initTabItems() {
+        tabItems = listOf(
+            CustomTabItem.NavigationItem(
+                text = "搜索"
+            ) {
+                Toast.makeText(requireContext(), "搜索", Toast.LENGTH_SHORT).show()
+            },
+            CustomTabItem.PagerItem("推荐", 0),
+            CustomTabItem.PagerItem("动态", 1),
+            CustomTabItem.PagerItem("历史", 2),
+        )
+        defaultSelectTabIndex = 1
+    }
 
     private fun buildPagerAdapter(): PagerAdapter =
         object : FragmentPagerAdapter(childFragmentManager) {
@@ -100,4 +139,66 @@ class HomeFragment : Fragment() {
 
         }
 
+
+    private inner class TabItemAdapter(
+        private val switchPage: (Int) -> Unit,
+    ) :
+        RecyclerView.Adapter<ViewHolder>() {
+
+        private var init = false
+
+        override fun getItemViewType(position: Int): Int = when (tabItems[position]) {
+            is CustomTabItem.PagerItem -> 0
+            is CustomTabItem.NavigationItem -> 1
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+            val textView = TextView(parent.context).apply {
+                focusable = View.FOCUSABLE
+            }
+            return object : ViewHolder(textView) {}
+        }
+
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+            with(holder.itemView as TextView) {
+                val color = if (!init && position == defaultSelectTabIndex) {
+                    init = true
+                    selectedTabColor
+                } else {
+                    unselectedTabColor
+                }
+                val item = tabItems[position]
+                setTextColor(color)
+                when (item) {
+                    is CustomTabItem.PagerItem -> {
+                        text = item.text
+                        setOnFocusChangeListener { _, hasFocus ->
+                            if (hasFocus) {
+                                switchPage(item.pageIndex)
+                            }
+                        }
+                    }
+                    is CustomTabItem.NavigationItem -> {
+                        text = item.text
+                        setOnKeyListener { _, keyCode, _ ->
+                            keyCode == KeyEvent.KEYCODE_DPAD_DOWN
+                        }
+                        setOnClickListener {
+                            item.onClick()
+                        }
+                    }
+                }
+
+            }
+        }
+
+        override fun getItemCount(): Int = tabItems.size
+
+    }
+
+}
+
+sealed class CustomTabItem {
+    data class PagerItem(val text: String, val pageIndex: Int) : CustomTabItem()
+    data class NavigationItem(val text: String, val onClick: () -> Unit) : CustomTabItem()
 }

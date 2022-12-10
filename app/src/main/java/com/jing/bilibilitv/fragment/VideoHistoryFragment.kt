@@ -29,7 +29,7 @@ import com.jing.bilibilitv.presenter.CustomGridViewPresenter
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-class VideoHistoryFragment(private val getSelectTabView: () -> View? = { null }) :
+class VideoHistoryFragment(private val getTopTabView: () -> View? = { null }) :
     VerticalGridSupportFragment(), IVPShowAwareFragment, IRefreshableFragment {
 
     private val viewModel by activityViewModels<VideoHistoryViewModel>()
@@ -60,9 +60,9 @@ class VideoHistoryFragment(private val getSelectTabView: () -> View? = { null })
             CustomGridViewPresenter(
                 focusZoomFactor = FocusHighlight.ZOOM_FACTOR_NONE,
                 useFocusDimmer = false,
-                getSelectedTabView = getSelectTabView,
+                getSelectedTabView = getTopTabView,
                 keyEventInterceptor = getHomeGridViewKeyInterceptor(
-                    getSelectedTabView = getSelectTabView,
+                    getSelectedTabView = getTopTabView,
                     refreshData = this::refreshData
                 )
             ).apply {

@@ -1,6 +1,7 @@
-package com.jing.bilibilitv
+package com.jing.bilibilitv.view
 
 import android.content.Context
+import android.graphics.Rect
 import android.util.AttributeSet
 import android.util.Log
 import android.view.KeyEvent
@@ -35,6 +36,14 @@ class CustomGridView(context: Context, attr: AttributeSet) :
             }
         }
         return super.focusSearch(focused, direction)
+    }
+
+    override fun requestChildFocus(child: View?, focused: View?) {
+        super.requestChildFocus(child, focused)
+    }
+
+    override fun requestFocus(direction: Int, previouslyFocusedRect: Rect?): Boolean {
+        return super.requestFocus(direction, previouslyFocusedRect)
     }
 
     override fun onKeyLongPress(keyCode: Int, event: KeyEvent?): Boolean {

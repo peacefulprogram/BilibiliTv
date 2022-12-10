@@ -8,8 +8,8 @@ import androidx.leanback.widget.ItemBridgeAdapter
 import androidx.leanback.widget.ItemBridgeAdapter.AdapterListener
 import androidx.leanback.widget.VerticalGridPresenter
 import androidx.leanback.widget.VerticalGridView
-import com.jing.bilibilitv.CustomGridView
 import com.jing.bilibilitv.R
+import com.jing.bilibilitv.view.CustomGridView
 
 class CustomGridViewPresenter(
     focusZoomFactor: Int,
@@ -56,7 +56,6 @@ class CustomGridViewPresenter(
             }
         })
 
-        super.initializeGridViewHolder(vh)
         val gridView = vh.gridView
         val top = 20
         val left = gridView.paddingLeft
