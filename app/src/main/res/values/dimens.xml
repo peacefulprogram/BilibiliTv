@@ -4,4 +4,5 @@
     <dimen name="video_preview_card_height">127dp</dimen>
     <dimen name="video_card_radius">5dp</dimen>
     <dimen name="video_card_icon_size">20dp</dimen>
+    <dimen name="dp_3">3dp</dimen>
 </resources>

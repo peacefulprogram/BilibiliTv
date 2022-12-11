@@ -221,6 +221,41 @@ interface BilibiliApi {
         @Query("season_id") seasonId: Long?
     ): PgcDetailResponse
 
+    /**
+     * 搜索视频
+     */
+    @GET("/x/web-interface/search/type")
+    suspend fun searchVideo(
+        @Query("keyword") keyword: String,
+        @Query("page") page: Int,
+        @Query("order") order: String? = null,
+        @Query("search_type") searchType: String = "video"
+    ): CommonDataResponse<SearchResultWrapper<SearchVideoResult>>
+
+
+    /**
+     * 搜索直播间
+     */
+    @GET("/x/web-interface/search/type")
+    suspend fun searchLiveRoom(
+        @Query("keyword") keyword: String,
+        @Query("page") page: Int,
+        @Query("order") order: String? = null,
+        @Query("search_type") searchType: String = "live_room"
+    ): CommonDataResponse<SearchResultWrapper<SearchLiveRoomResult>>
+
+
+    /**
+     * 搜索用户
+     */
+    @GET("/x/web-interface/search/type")
+    suspend fun searchUser(
+        @Query("keyword") keyword: String,
+        @Query("page") page: Int,
+        @Query("order") order: String? = null,
+        @Query("search_type") searchType: String = "bili_user"
+    ): CommonDataResponse<SearchResultWrapper<SearchUserResult>>
+
     companion object {
         const val BASE_URL = "https://api.bilibili.com"
     }

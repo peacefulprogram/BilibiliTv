@@ -1,5 +1,7 @@
 package com.jing.bilibilitv.playback
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.WindowManager
@@ -36,4 +38,13 @@ class VideoPlayActivity : FragmentActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }
 
+
+    companion object {
+        fun navigateToPlayActivity(context: Context, avid: String?, bvid: String?, title: String) {
+            Intent(context, VideoPlayActivity::class.java).apply {
+                replaceExtras(VideoPlayActivityArgs(avid, bvid, title).toBundle())
+                context.startActivity(this)
+            }
+        }
+    }
 }

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/suggest_container"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/suggest_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="猜你想搜:"
+            android:textColor="@color/gray50"
+            android:textSize="20sp"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.jing.bilibilitv.view.CustomRecyclerview
+            android:id="@+id/suggest_kw_list"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:descendantFocusability="beforeDescendants"
+            android:focusable="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/suggest_title" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1">
+
+        <TextView
+            android:id="@+id/hot_kw_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="大家都在搜:"
+            android:textColor="@color/gray50"
+            android:textSize="20sp"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.jing.bilibilitv.view.CustomRecyclerview
+            android:id="@+id/hot_kw_container"
+            android:layout_width="match_parent"
+            android:descendantFocusability="beforeDescendants"
+            android:layout_height="0dp"
+            android:focusable="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/hot_kw_title" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</LinearLayout>

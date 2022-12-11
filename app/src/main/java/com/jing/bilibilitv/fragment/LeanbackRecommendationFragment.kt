@@ -19,6 +19,8 @@ import coil.load
 import coil.transform.RoundedCornersTransformation
 import com.jing.bilibilitv.R
 import com.jing.bilibilitv.databinding.VideoCardLbLayoutBinding
+import com.jing.bilibilitv.ext.secondsToDateString
+import com.jing.bilibilitv.ext.toShortText
 import com.jing.bilibilitv.home.getHomeGridViewKeyInterceptor
 import com.jing.bilibilitv.http.data.VideoInfo
 import com.jing.bilibilitv.model.RecommendationViewModel
@@ -26,10 +28,6 @@ import com.jing.bilibilitv.presenter.CustomGridViewPresenter
 import com.jing.bilibilitv.resource.Resource
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 
 class LeanbackRecommendationFragment(private val getSelectTabView: () -> View? = { null }) :
     VerticalGridSupportFragment(), IVPShowAwareFragment, IRefreshableFragment {
@@ -143,30 +141,13 @@ class LeanbackRecommendationFragment(private val getSelectTabView: () -> View? =
                 playCount.text = video.stat.view.toShortText()
                 danmuCount.text = video.stat.danmuku.toShortText()
                 username.text = video.owner.name
-                pubDate.text = video.pubDate.toDateString()
+                pubDate.text = video.pubDate.secondsToDateString()
                 videoDuration.text = video.getDurationText()
             }
 
         }
 
 
-        companion object {
-            val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("MM-dd")
-        }
-
-        private fun Int.toShortText(): String {
-            if (this > 10000) {
-                return this.floorDiv(1000).toDouble().div(10).toString() + "万"
-            }
-            return toString()
-        }
-
-        private fun Long.toDateString(): String {
-            return LocalDateTime.ofInstant(Instant.ofEpochSecond(this), ZoneId.systemDefault())
-                .format(
-                    dateFormatter
-                )
-        }
 
         override fun onUnbindViewHolder(viewHolder: ViewHolder?) {
         }

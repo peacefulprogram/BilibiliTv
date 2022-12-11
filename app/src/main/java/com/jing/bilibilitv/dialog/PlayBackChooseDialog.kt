@@ -14,8 +14,8 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.*
 import com.jing.bilibilitv.R
 import com.jing.bilibilitv.databinding.ChooseItemIndicatorLayoutBinding
+import com.jing.bilibilitv.ext.dpToPx
 import com.jing.bilibilitv.ext.getColorWithAlpha
-import com.jing.bilibilitv.ext.toPx
 
 class PlayBackChooseDialog<T>(
     private val dataList: List<T>,
@@ -33,7 +33,7 @@ class PlayBackChooseDialog<T>(
         super.onStart()
         dialog?.window?.attributes?.run {
             height = WindowManager.LayoutParams.MATCH_PARENT
-            width = viewWidth.toPx.toInt()
+            width = viewWidth.dpToPx.toInt()
             gravity = Gravity.END
             dialog!!.window!!.attributes = this
         }

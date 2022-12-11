@@ -7,10 +7,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentPagerAdapter
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ItemDecoration
@@ -18,7 +18,7 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import androidx.viewpager.widget.PagerAdapter
 import com.jing.bilibilitv.R
 import com.jing.bilibilitv.databinding.HomeFragmentLayoutBinding
-import com.jing.bilibilitv.ext.toPx
+import com.jing.bilibilitv.ext.dpToPx
 import com.jing.bilibilitv.http.api.BilibiliApi
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -45,9 +45,9 @@ class HomeFragment : Fragment() {
 
     private val pagerFragmentList by lazy<List<Pair<String, Fragment>>> {
         listOf(
-            Pair("历史", VideoHistoryFragment { viewBinding.tabContainer }),
             Pair("推荐", LeanbackRecommendationFragment { viewBinding.tabContainer }),
-            Pair("动态", LeanbackDynamicFragment { viewBinding.tabContainer })
+            Pair("动态", LeanbackDynamicFragment { viewBinding.tabContainer }),
+            Pair("历史", VideoHistoryFragment { viewBinding.tabContainer })
         )
     }
 
@@ -75,7 +75,7 @@ class HomeFragment : Fragment() {
                     parent: RecyclerView,
                     state: RecyclerView.State
                 ) {
-                    val gap = 20.toPx.toInt()
+                    val gap = 20.dpToPx.toInt()
                     outRect.left = gap
                     outRect.right = gap
                     outRect.top = gap
@@ -114,7 +114,7 @@ class HomeFragment : Fragment() {
             CustomTabItem.NavigationItem(
                 text = "搜索"
             ) {
-                Toast.makeText(requireContext(), "搜索", Toast.LENGTH_SHORT).show()
+                findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToSearchActivity())
             },
             CustomTabItem.PagerItem("推荐", 0),
             CustomTabItem.PagerItem("动态", 1),

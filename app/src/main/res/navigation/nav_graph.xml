@@ -26,23 +26,32 @@
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.jing.bilibilitv.fragment.HomeFragment"
-        android:label="HomeFragment" >
+        android:label="HomeFragment">
         <action
             android:id="@+id/action_homeFragment_to_videoPlayActivity"
             app:destination="@id/videoPlayActivity" />
+        <action
+            android:id="@+id/action_homeFragment_to_searchActivity"
+            app:destination="@id/searchActivity" />
     </fragment>
     <activity
         android:id="@+id/videoPlayActivity"
         android:name="com.jing.bilibilitv.playback.VideoPlayActivity"
         android:label="VideoPlayActivity" >
-        <argument android:name="avid"
+        <argument
+            android:name="avid"
             app:argType="string"
             app:nullable="true" />
         <argument
             android:name="bvid"
             app:argType="string"
             app:nullable="true" />
-        <argument android:name="title"
+        <argument
+            android:name="title"
             app:argType="string" />
     </activity>
+    <activity
+        android:id="@+id/searchActivity"
+        android:name="com.jing.bilibilitv.search.SearchActivity"
+        android:label="SearchActivity" />
 </navigation>
