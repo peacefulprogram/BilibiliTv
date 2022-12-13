@@ -23,19 +23,18 @@ class CustomGridView(context: Context, attr: AttributeSet) :
     /**
      * 当
      */
-    var findSelectedTabView: (direction: Int) -> View? = { null }
+    var interceptorFocusSearch: (direction: Int, position: Int, focused: View?) -> View? =
+        { _, _, _ -> null }
 
     /**
      * 实现在第一行按上键时选中的tab获得焦点
      */
     override fun focusSearch(focused: View?, direction: Int): View {
-        if (direction == View.FOCUS_UP && focused != null && getChildLayoutPosition(focused) < columnCount) {
-            val result = findSelectedTabView(direction)
-            if (result != null) {
-                return result
-            }
+        if (focused == null) {
+            return super.focusSearch(focused, direction)
         }
-        return super.focusSearch(focused, direction)
+        return interceptorFocusSearch(direction, getChildLayoutPosition(focused), focused)
+            ?: super.focusSearch(focused, direction)
     }
 
     override fun requestChildFocus(child: View?, focused: View?) {

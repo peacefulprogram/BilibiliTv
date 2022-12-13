@@ -24,13 +24,13 @@ import com.jing.bilibilitv.databinding.FragmentSearchResultBinding
 import com.jing.bilibilitv.databinding.SearchResultVideoCardBinding
 import com.jing.bilibilitv.ext.dpToPx
 import com.jing.bilibilitv.ext.secondsToDateString
-import com.jing.bilibilitv.ext.showShortToast
 import com.jing.bilibilitv.ext.toShortText
 import com.jing.bilibilitv.http.data.BilibiliSearchResult
 import com.jing.bilibilitv.http.data.SearchUserResult
 import com.jing.bilibilitv.http.data.SearchVideoResult
 import com.jing.bilibilitv.model.SearchViewModel
 import com.jing.bilibilitv.playback.VideoPlayActivity
+import com.jing.bilibilitv.user.UserSpaceActivity
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -193,7 +193,7 @@ class SearchResultListFragment(private val viewModel: SearchViewModel) : Fragmen
             if (item is SearchUserResult) {
                 with(holder.itemView.tag as BiliUserSearchLayoutBinding) {
                     root.setOnClickListener {
-                        requireContext().showShortToast("todo: ${item.uname}")
+                        UserSpaceActivity.navigateTo(item.mid, requireContext())
                     }
                     avatar.load(item.upic.urlWithScheme())
                     username.text = item.uname

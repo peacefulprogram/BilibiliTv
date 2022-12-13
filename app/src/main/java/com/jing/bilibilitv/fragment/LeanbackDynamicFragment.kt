@@ -5,7 +5,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
 import androidx.leanback.app.VerticalGridSupportFragment
@@ -17,6 +16,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import coil.transform.RoundedCornersTransformation
 import com.jing.bilibilitv.R
@@ -25,6 +25,7 @@ import com.jing.bilibilitv.home.getHomeGridViewKeyInterceptor
 import com.jing.bilibilitv.http.data.DynamicItem
 import com.jing.bilibilitv.model.DynamicViewModel
 import com.jing.bilibilitv.presenter.CustomGridViewPresenter
+import com.jing.bilibilitv.user.UserSpaceActivity
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -59,25 +60,30 @@ class LeanbackDynamicFragment(private val getSelectTabView: () -> View? = { null
             }
         }
         adapter = pagingAdapter
+        val columnsCount = 4
         mGridPresenter =
             CustomGridViewPresenter(
                 focusZoomFactor = FocusHighlight.ZOOM_FACTOR_NONE,
                 useFocusDimmer = false,
-                getSelectedTabView = getSelectTabView,
+                interceptorFocusSearch = { direction, position, focused ->
+                    if (position % 2 == 0 && direction == RecyclerView.FOCUS_LEFT) {
+                        focused
+                    } else if (position < columnsCount && direction == RecyclerView.FOCUS_UP) {
+                        getSelectTabView()
+                    } else {
+                        null
+                    }
+                },
                 keyEventInterceptor = getHomeGridViewKeyInterceptor(
                     getSelectedTabView = getSelectTabView,
                     refreshData = this::onVPShow
                 )
             ).apply {
-                numberOfColumns = 4
+                numberOfColumns = columnsCount
                 setOnLongClickListener { _, item ->
                     if (item != null) {
                         with(item as DynamicItem) {
-                            Toast.makeText(
-                                requireContext(),
-                                "长按:${modules.moduleAuthor.name}",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            UserSpaceActivity.navigateTo(modules.moduleAuthor.mid, requireContext())
                         }
                         true
                     } else {

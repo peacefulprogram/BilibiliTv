@@ -15,6 +15,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.findNavController
+import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import coil.transform.RoundedCornersTransformation
 import com.jing.bilibilitv.R
@@ -26,6 +27,7 @@ import com.jing.bilibilitv.http.data.VideoInfo
 import com.jing.bilibilitv.model.RecommendationViewModel
 import com.jing.bilibilitv.presenter.CustomGridViewPresenter
 import com.jing.bilibilitv.resource.Resource
+import com.jing.bilibilitv.user.UserSpaceActivity
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -51,16 +53,35 @@ class LeanbackRecommendationFragment(private val getSelectTabView: () -> View? =
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mAdapter = ArrayObjectAdapter(VideoCardPresenter())
+        val columnsCount = 4
         gridPresenter = CustomGridViewPresenter(
             focusZoomFactor = FocusHighlight.ZOOM_FACTOR_NONE,
             useFocusDimmer = false,
-            getSelectedTabView = getSelectTabView,
+            interceptorFocusSearch = { direction, position, focused ->
+                if (position % 2 == 0 && direction == RecyclerView.FOCUS_LEFT) {
+                    focused
+                } else if (position < columnsCount && direction == RecyclerView.FOCUS_UP) {
+                    getSelectTabView()
+                } else {
+                    null
+                }
+            },
             keyEventInterceptor = getHomeGridViewKeyInterceptor(
                 getSelectedTabView = getSelectTabView,
                 refreshData = this::onVPShow
             )
         ).apply {
-            this.numberOfColumns = 4
+            this.numberOfColumns = columnsCount
+            setOnLongClickListener { _, item ->
+                if (item != null) {
+                    with(item as VideoInfo) {
+                        UserSpaceActivity.navigateTo(mid = owner.mid, requireContext())
+                    }
+                    true
+                } else {
+                    false
+                }
+            }
         }
     }
 
@@ -146,7 +167,6 @@ class LeanbackRecommendationFragment(private val getSelectTabView: () -> View? =
             }
 
         }
-
 
 
         override fun onUnbindViewHolder(viewHolder: ViewHolder?) {

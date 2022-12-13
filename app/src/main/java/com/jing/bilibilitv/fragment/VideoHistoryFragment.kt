@@ -15,6 +15,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import coil.transform.RoundedCornersTransformation
 import com.jing.bilibilitv.R
@@ -24,6 +25,7 @@ import com.jing.bilibilitv.home.getHomeGridViewKeyInterceptor
 import com.jing.bilibilitv.http.data.HistoryItem
 import com.jing.bilibilitv.model.VideoHistoryViewModel
 import com.jing.bilibilitv.presenter.CustomGridViewPresenter
+import com.jing.bilibilitv.user.UserSpaceActivity
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -54,17 +56,35 @@ class VideoHistoryFragment(private val getTopTabView: () -> View? = { null }) :
                 }
             }
         }
+        val columnsCount = 4
         mGridPresenter =
             CustomGridViewPresenter(
                 focusZoomFactor = FocusHighlight.ZOOM_FACTOR_NONE,
                 useFocusDimmer = false,
-                getSelectedTabView = getTopTabView,
+                interceptorFocusSearch = { direction, position, focused ->
+                    if (position % 2 == 0 && direction == RecyclerView.FOCUS_LEFT) {
+                        focused
+                    } else if (position < columnsCount && direction == RecyclerView.FOCUS_UP) {
+                        getTopTabView()
+                    } else {
+                        null
+                    }
+                },
                 keyEventInterceptor = getHomeGridViewKeyInterceptor(
                     getSelectedTabView = getTopTabView,
                     refreshData = this::refreshData
                 )
             ).apply {
-                numberOfColumns = 4
+                setOnLongClickListener { _, item ->
+                    if (item is HistoryItem) {
+                        UserSpaceActivity.navigateTo(item.authorMid, requireContext())
+                        true
+                    } else {
+                        false
+                    }
+
+                }
+                numberOfColumns = columnsCount
             }
         gridPresenter = mGridPresenter
         adapter = pagingAdapter

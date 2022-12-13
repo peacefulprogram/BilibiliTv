@@ -40,6 +40,11 @@
             android:name=".search.SearchActivity"
             android:exported="false"
             android:theme="@style/Theme.Leanback" />
+
+        <activity
+            android:name=".user.UserSpaceActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
     </application>
 
 </manifest>

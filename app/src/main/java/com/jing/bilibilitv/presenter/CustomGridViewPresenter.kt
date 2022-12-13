@@ -14,7 +14,8 @@ import com.jing.bilibilitv.view.CustomGridView
 class CustomGridViewPresenter(
     focusZoomFactor: Int,
     useFocusDimmer: Boolean,
-    private val getSelectedTabView: () -> View? = { null },
+    private val interceptorFocusSearch: (direction: Int, position: Int, focused: View?) -> View? =
+        { _, _, _ -> null },
     private val keyEventInterceptor: (keyEvent: KeyEvent, gridView: VerticalGridView) -> Boolean = { _, _ -> false },
 ) :
     VerticalGridPresenter(focusZoomFactor, useFocusDimmer) {
@@ -31,9 +32,7 @@ class CustomGridViewPresenter(
     override fun createGridViewHolder(parent: ViewGroup?): ViewHolder {
         gridView = LayoutInflater.from(parent!!.context)
             .inflate(R.layout.custom_lb_grid_view_layout, parent, false) as CustomGridView
-        gridView!!.findSelectedTabView = {
-            getSelectedTabView()
-        }
+        gridView!!.interceptorFocusSearch = interceptorFocusSearch
         gridView!!.setOnKeyInterceptListener { keyEvent ->
             keyEventInterceptor(keyEvent, gridView!!)
         }

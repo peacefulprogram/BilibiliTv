@@ -1,5 +1,6 @@
 package com.jing.bilibilitv.http.api
 
+import com.jing.bilibilitv.GlobalState
 import com.jing.bilibilitv.http.data.*
 import okhttp3.ResponseBody
 import retrofit2.http.*
@@ -255,6 +256,41 @@ interface BilibiliApi {
         @Query("order") order: String? = null,
         @Query("search_type") searchType: String = "bili_user"
     ): CommonDataResponse<SearchResultWrapper<SearchUserResult>>
+
+    /**
+     * 查询是否关注用户
+     */
+    @GET("/x/relation")
+    suspend fun checkIsFollowing(
+        @Query("fid") mid: Long
+    ): CommonDataResponse<CheckFollowResponse>
+
+    @POST("/x/relation/modify")
+    @FormUrlEncoded
+    suspend fun changeRelation(
+        @Field("fid") mid: Long,
+        @Field("act") act: Int,
+        @Field("re_src") reSrc: Int = 11,
+        @Field("csrf") csrf: String = GlobalState.csrfToken
+    ): CommonDataResponse<Unit>
+
+    @GET("/x/space/arc/search")
+    suspend fun queryVideoOfUser(
+        @Query("mid") mid: Long,
+        @Query("pn") pageNumber: Int,
+        @Query("ps") pageSize: Int,
+        @Query("keyword") keyword: String? = null,
+        @Query("order") order: String = "pubdate",
+    ): CommonDataResponse<UserVideoResponse>
+
+    /**
+     * 查询用户详情
+     */
+    @GET("/x/space/acc/info")
+    suspend fun getUserDetail(
+        @Query("mid") mid: Long
+    ): CommonDataResponse<UserDetailResponse>
+
 
     companion object {
         const val BASE_URL = "https://api.bilibili.com"
