@@ -1,5 +1,6 @@
 package com.jing.bilibilitv.fragment
 
+import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
 import android.view.KeyEvent
@@ -20,6 +21,7 @@ import com.jing.bilibilitv.R
 import com.jing.bilibilitv.databinding.HomeFragmentLayoutBinding
 import com.jing.bilibilitv.ext.dpToPx
 import com.jing.bilibilitv.http.api.BilibiliApi
+import com.jing.bilibilitv.live.BilibiliLiveActivity
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -35,7 +37,7 @@ class HomeFragment : Fragment() {
 
     private lateinit var viewBinding: HomeFragmentLayoutBinding
 
-    private var defaultSelectTabIndex = 1
+    private var defaultSelectTabIndex = 2
 
     private lateinit var tabItems: List<CustomTabItem>
 
@@ -116,11 +118,18 @@ class HomeFragment : Fragment() {
             ) {
                 findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToSearchActivity())
             },
+            CustomTabItem.NavigationItem(
+                text = "直播"
+            ) {
+                Intent(requireContext(), BilibiliLiveActivity::class.java).apply {
+                    startActivity(this)
+                }
+            },
             CustomTabItem.PagerItem("推荐", 0),
             CustomTabItem.PagerItem("动态", 1),
             CustomTabItem.PagerItem("历史", 2),
         )
-        defaultSelectTabIndex = 1
+        defaultSelectTabIndex = 2
     }
 
     private fun buildPagerAdapter(): PagerAdapter =

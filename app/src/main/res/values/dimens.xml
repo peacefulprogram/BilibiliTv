@@ -5,4 +5,6 @@
     <dimen name="video_card_radius">5dp</dimen>
     <dimen name="video_card_icon_size">20dp</dimen>
     <dimen name="dp_3">3dp</dimen>
+    <dimen name="live_room_cover_width">256dp</dimen>
+    <dimen name="live_room_cover_height">160dp</dimen>
 </resources>

@@ -6,6 +6,7 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.jing.bilibilitv.BuildConfig
 import com.jing.bilibilitv.http.api.BilibiliApi
+import com.jing.bilibilitv.http.api.LiveApi
 import com.jing.bilibilitv.http.api.PassportApi
 import com.jing.bilibilitv.http.api.SearchApi
 import com.jing.bilibilitv.http.cookie.BilibiliCookieJar
@@ -164,6 +165,19 @@ class DIModule {
         .addConverterFactory(gsonConverterFactory)
         .build()
         .create(SearchApi::class.java)
+
+
+    @Provides
+    @Singleton
+    fun provideLiveApi(
+        okHttpClient: OkHttpClient,
+        gsonConverterFactory: GsonConverterFactory
+    ): LiveApi = Retrofit.Builder()
+        .client(okHttpClient)
+        .baseUrl(LiveApi.BASE_URL)
+        .addConverterFactory(gsonConverterFactory)
+        .build()
+        .create(LiveApi::class.java)
 
 
 }

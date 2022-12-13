@@ -45,6 +45,11 @@
             android:name=".user.UserSpaceActivity"
             android:exported="false"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
+
+        <activity
+            android:name=".live.BilibiliLiveActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Leanback" />
     </application>
 
 </manifest>
