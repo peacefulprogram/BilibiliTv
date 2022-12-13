@@ -28,6 +28,7 @@ import com.jing.bilibilitv.ext.showLongToast
 import com.jing.bilibilitv.ext.toShortText
 import com.jing.bilibilitv.http.api.BilibiliApi
 import com.jing.bilibilitv.http.data.UserVideoVlist
+import com.jing.bilibilitv.playback.VideoPlayActivity
 import com.jing.bilibilitv.resource.Resource
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -163,6 +164,15 @@ class UserSpaceActivity : AppCompatActivity() {
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val item = getItem(position)!!
             with(holder.itemView.tag as SearchResultVideoCardBinding) {
+                root.setOnClickListener {
+                    VideoPlayActivity.navigateToPlayActivity(
+                        root.context,
+                        item.aid.toString(),
+                        item.bvid,
+                        item.title
+                    )
+                    true
+                }
                 username.text = item.author
                 duration.text = item.length
                 title.text = item.title
