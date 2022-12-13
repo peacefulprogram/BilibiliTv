@@ -11,9 +11,7 @@ import androidx.leanback.paging.PagingDataAdapter
 import androidx.leanback.widget.FocusHighlight
 import androidx.leanback.widget.OnItemViewClickedListener
 import androidx.leanback.widget.Presenter
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.DiffUtil
@@ -78,13 +76,10 @@ class VideoHistoryFragment(private val getTopTabView: () -> View? = { null }) :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.pager.collectLatest {
-                    pagingAdapter!!.submitData(it)
-                }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.pager.collectLatest {
+                pagingAdapter!!.submitData(it)
             }
-
         }
         onItemViewClickedListener =
             OnItemViewClickedListener { _, item, _, _ ->

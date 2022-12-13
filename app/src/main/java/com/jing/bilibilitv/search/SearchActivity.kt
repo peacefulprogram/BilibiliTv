@@ -430,8 +430,6 @@ class SearchResultListFragment(private val viewModel: SearchViewModel) : Fragmen
                     )
                 }
                 if (oldView?.parent == viewBinding.searchTypeContainer) {
-                    oldView.scaleX = 1f
-                    oldView.scaleY = 1f
                     if (newViewInTab) {
                         (oldView.tag as ChooseItemIndicatorLayoutBinding).textContainer.setTextColor(
                             unselectedTypeColor
@@ -473,11 +471,9 @@ class SearchResultListFragment(private val viewModel: SearchViewModel) : Fragmen
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.pager.collectLatest {
-                    pagingAdapter.submitData(it)
-                }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.pager.collectLatest {
+                pagingAdapter.submitData(it)
             }
         }
     }
@@ -485,7 +481,6 @@ class SearchResultListFragment(private val viewModel: SearchViewModel) : Fragmen
     override fun onStart() {
         super.onStart()
         started = true
-        viewModel.setSearchType(SEARCH_TYPE_VIDEO)
     }
 
 
