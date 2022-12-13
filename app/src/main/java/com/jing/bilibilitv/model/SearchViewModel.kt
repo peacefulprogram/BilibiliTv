@@ -98,6 +98,8 @@ class SearchViewModel @Inject constructor(
 
     }
 
+    fun currentSearchType(): String = _currentSearchType.value
+
     fun setSearchType(searchTypeVideo: String): Boolean {
         if (searchTypeVideo == _currentSearchType.value) {
             return false
@@ -133,20 +135,20 @@ class SearchViewModel @Inject constructor(
             return try {
                 val searchResult = when (currentType) {
                     "video" -> bilibiliApi.searchVideo(keyword, page).data?.apply {
-                        result.forEach { row ->
+                        result?.forEach { row ->
                             row.title = row.title.replace(Regex("</?.+?/?>"), "")
                         }
                     }
                     "bili_user" -> bilibiliApi.searchUser(keyword, page).data
                     "live_room" -> bilibiliApi.searchLiveRoom(keyword, page).data?.apply {
-                        result.forEach { row ->
+                        result?.forEach { row ->
                             row.title = row.title.replace(Regex("</?.+?/?>"), "")
                         }
                     }
                     else -> throw IllegalStateException("不支持到搜索类型$currentType")
                 } ?: throw RuntimeException("请求数据为空")
                 LoadResult.Page(
-                    data = searchResult.result,
+                    data = searchResult.result ?: emptyList(),
                     prevKey = null,
                     nextKey = if (page < searchResult.numPages) page + 1 else null
                 )

@@ -30,7 +30,7 @@ data class SearchResultWrapper<T : BilibiliSearchResult>(
     @SerializedName("suggest_keyword")
     val suggestKeyword: String,
     @SerializedName("result")
-    val result: List<T>
+    val result: List<T>?
 )
 
 
