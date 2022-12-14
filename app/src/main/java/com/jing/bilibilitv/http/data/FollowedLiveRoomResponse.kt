@@ -10,19 +10,19 @@ data class FollowedLiveRoomResponse(
 
 data class FollowedLiveRoom(
     @SerializedName("area")
-    val area: Int,
+    val area: Long,
     @SerializedName("area_name")
     val areaName: String,
     @SerializedName("area_v2_id")
-    val areaV2Id: Int,
+    val areaV2Id: Long,
     @SerializedName("area_v2_name")
     val areaV2Name: String,
     @SerializedName("area_v2_parent_id")
-    val areaV2ParentId: Int,
+    val areaV2ParentId: Long,
     @SerializedName("area_v2_parent_name")
     val areaV2ParentName: String,
     @SerializedName("broadcast_type")
-    val broadcastType: Int,
+    val broadcastType: Long,
     @SerializedName("cover_from_user")
     val coverFromUser: String,
     @SerializedName("face")
@@ -36,21 +36,19 @@ data class FollowedLiveRoom(
     @SerializedName("link")
     val link: String,
     @SerializedName("live_status")
-    val liveStatus: Int,
+    val liveStatus: Long,
     @SerializedName("lock_till")
     val lockTill: String,
     @SerializedName("nickname")
     val nickname: String,
     @SerializedName("online")
-    val online: Int,
+    val online: Long,
     @SerializedName("room_id")
-    val roomId: Int,
-    @SerializedName("roomid")
-    val roomid: Int,
+    val roomId: Long,
     @SerializedName("roomname")
-    val roomname: String,
+    val roomName: String,
     @SerializedName("short_id")
-    val shortId: Int,
+    val shortId: Long,
     @SerializedName("tag_name")
     val tagName: String,
     @SerializedName("tags")
@@ -58,7 +56,7 @@ data class FollowedLiveRoom(
     @SerializedName("title")
     val title: String,
     @SerializedName("uid")
-    val uid: Int,
+    val uid: Long,
     @SerializedName("uname")
     val uname: String
 )

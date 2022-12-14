@@ -34,6 +34,25 @@ interface LiveApi {
         @Query("page_size") pageSize: Int,
     ): CommonDataResponse<FollowedLiveRoomResponse>
 
+    /**
+     * 查询直播间视频流
+     * @param platform web(http-flv) 或 h5(hls)
+     */
+    @GET("/room/v1/Room/playUrl")
+    suspend fun queryLiveStreamUrl(
+        @Query("cid") roomId: Long,
+        @Query("platform") platform: String = "h5",
+        @Query("quality") quality: Int = 4
+    ): CommonDataResponse<LiveStreamUrlResponse>
+
+    @GET("/xlive/web-room/v1/index/getDanmuInfo")
+    suspend fun queryLiveRoomWsServer(
+        @Query("id") roomId: Long
+    ): CommonDataResponse<LiveRoomWsResponse>
+
+    @GET("/room/v1/Room/get_info")
+    suspend fun queryLiveRoomDetail(@Query("room_id") roomId: Long): CommonDataResponse<LiveRoomDetail>
+
     companion object {
         const val BASE_URL = "https://api.live.bilibili.com"
     }

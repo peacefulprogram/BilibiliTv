@@ -19,6 +19,7 @@ import com.jing.bilibilitv.databinding.LiveRoomCardLayoutBinding
 import com.jing.bilibilitv.ext.dpToPx
 import com.jing.bilibilitv.ext.toShortText
 import com.jing.bilibilitv.http.data.FollowedLiveRoom
+import com.jing.bilibilitv.live.playback.LiveRoomPlaybackActivity
 import com.jing.bilibilitv.view.CustomGridView
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -126,6 +127,12 @@ class FollowedLiveRoomFragment(
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val room = getItem(position)!!
             with(holder.itemView.tag as LiveRoomCardLayoutBinding) {
+                root.setOnClickListener {
+                    LiveRoomPlaybackActivity.navigateTo(
+                        room.roomId,
+                        root.context
+                    )
+                }
                 cover.load(room.coverFromUser)
                 avatar.load(room.face)
                 title.text = room.title

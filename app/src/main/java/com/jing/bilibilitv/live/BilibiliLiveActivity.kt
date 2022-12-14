@@ -35,6 +35,8 @@ class BilibiliLiveActivity : FragmentActivity() {
 
     private var defaultSelectTabIndex = 0
 
+    private val focusTabItemScale = 1.5f
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewBinding = LiveActivityLayoutBinding.inflate(LayoutInflater.from(this))
@@ -63,12 +65,11 @@ class BilibiliLiveActivity : FragmentActivity() {
             })
             viewTreeObserver.addOnGlobalFocusChangeListener { oldView, newView ->
                 var newViewInTab = false
-                val scale = 1.5f
                 if (newView?.parent == viewBinding.tabContainer) {
                     newViewInTab = true
                     (newView as TextView).setTextColor(selectTabColor)
-                    newView.scaleX = scale
-                    newView.scaleY = scale
+                    newView.scaleX = focusTabItemScale
+                    newView.scaleY = focusTabItemScale
                 }
                 if (oldView?.parent == viewBinding.tabContainer) {
                     oldView.scaleX = 1f
@@ -128,6 +129,8 @@ class BilibiliLiveActivity : FragmentActivity() {
                 }
                 if (color == selectTabColor) {
                     requestFocus()
+                    scaleX = focusTabItemScale
+                    scaleY = focusTabItemScale
                 }
             }
         }

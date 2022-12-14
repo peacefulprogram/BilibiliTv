@@ -89,7 +89,7 @@ class LbVideoPlaybackFragment(
     ): View? {
         val root = super.onCreateView(inflater, container, savedInstanceState)
         danmakuView = DanmakuView(requireContext())
-        playbackRoot = root!!.findViewById<ViewGroup>(R.id.playback_fragment_root)
+        playbackRoot = root!!.findViewById(R.id.playback_fragment_root)
         playbackRoot.addView(danmakuView, 1)
         return root
     }

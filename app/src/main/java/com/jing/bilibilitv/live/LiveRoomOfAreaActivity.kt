@@ -25,6 +25,7 @@ import com.jing.bilibilitv.ext.showLongToast
 import com.jing.bilibilitv.ext.toShortText
 import com.jing.bilibilitv.http.api.LiveApi
 import com.jing.bilibilitv.http.data.LiveRoomOfArea
+import com.jing.bilibilitv.live.playback.LiveRoomPlaybackActivity
 import com.jing.bilibilitv.view.CustomGridView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -119,6 +120,12 @@ class LiveRoomOfAreaActivity : AppCompatActivity() {
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val room = getItem(position)!!
             with(holder.itemView.tag as LiveRoomCardLayoutBinding) {
+                root.setOnClickListener {
+                    LiveRoomPlaybackActivity.navigateTo(
+                        room.roomId,
+                        root.context
+                    )
+                }
                 cover.load(room.cover)
                 avatar.load(room.face)
                 username.text = room.uname
