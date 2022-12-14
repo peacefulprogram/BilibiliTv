@@ -119,7 +119,7 @@ data class SearchLiveRoomResult(
     @SerializedName("is_live_room_inline")
     val isLiveRoomInline: Long,
     @SerializedName("live_status")
-    val liveStatus: Long,
+    val liveStatus: Int,
     @SerializedName("live_time")
     val liveTime: String,
     @SerializedName("online")
