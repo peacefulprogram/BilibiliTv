@@ -126,6 +126,9 @@ class BilibiliLiveActivity : FragmentActivity() {
                         }
                     }
                 }
+                if (color == selectTabColor) {
+                    requestFocus()
+                }
             }
         }
 

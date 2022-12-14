@@ -1,8 +1,6 @@
 package com.jing.bilibilitv.http.api
 
-import com.jing.bilibilitv.http.data.CommonDataResponse
-import com.jing.bilibilitv.http.data.FollowedLiveRoomResponse
-import com.jing.bilibilitv.http.data.LiveRoomArea
+import com.jing.bilibilitv.http.data.*
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -19,7 +17,7 @@ interface LiveApi {
         @Query("sort_type") sortType: String,
         @Query("page") page: Int,
         @Query("platform") platform: String = "web"
-    ): CommonDataResponse<Unit>
+    ): CommonDataResponse<LiveRoomOfAreaResponse>
 
     /**
      * 查询直播分区

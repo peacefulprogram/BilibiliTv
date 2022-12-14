@@ -50,6 +50,11 @@
             android:name=".live.BilibiliLiveActivity"
             android:exported="false"
             android:theme="@style/Theme.Leanback" />
+
+        <activity
+            android:name=".live.LiveRoomOfAreaActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
     </application>
 
 </manifest>

@@ -32,6 +32,7 @@ class LiveRoomAreaFragment(
     ): View? {
         onItemViewClickedListener = OnItemViewClickedListener { _, item, _, _ ->
             val area = item as LiveRoomSubArea
+            LiveRoomOfAreaActivity.navigateTo(area.parentId, area.id, requireContext())
         }
         progressBarManager = ProgressBarManager().apply {
             enableProgressBar()
