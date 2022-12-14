@@ -16,3 +16,4 @@ dependencyResolutionManagement {
 rootProject.name = "bilibiliTv"
 include ':app'
 include ':DanmakuFlameMaster'
+include ':brotli'
