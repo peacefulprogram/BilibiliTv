@@ -62,7 +62,7 @@ class VideoHistoryFragment(private val getTopTabView: () -> View? = { null }) :
                 focusZoomFactor = FocusHighlight.ZOOM_FACTOR_NONE,
                 useFocusDimmer = false,
                 interceptorFocusSearch = { direction, position, focused ->
-                    if (position % 2 == 0 && direction == RecyclerView.FOCUS_LEFT) {
+                    if (position % columnsCount == 0 && direction == RecyclerView.FOCUS_LEFT) {
                         focused
                     } else if (position < columnsCount && direction == RecyclerView.FOCUS_UP) {
                         getTopTabView()

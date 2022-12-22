@@ -43,6 +43,4 @@ data class UserLevelInfo(
     val currentMin: Int,
     @SerializedName("current_exp")
     val currentExp: Int,
-    @SerializedName("next_exp")
-    val nextExp: Int
 )
