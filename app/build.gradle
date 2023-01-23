@@ -99,5 +99,7 @@ dependencies {
 
     implementation 'de.hdodenhof:circleimageview:3.1.0'
 
-    implementation(project(path: ':brotli'))
+    // https://mvnrepository.com/artifact/org.brotli/dec
+    implementation("org.brotli:dec:0.1.2")
+
 }

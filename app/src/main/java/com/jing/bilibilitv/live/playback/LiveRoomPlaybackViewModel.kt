@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
+import com.jing.bilibilitv.ext.decompressBrotli
 import com.jing.bilibilitv.ext.unzip
 import com.jing.bilibilitv.http.api.LiveApi
 import com.jing.bilibilitv.http.data.LiveRoomDetail
@@ -20,7 +21,6 @@ import kotlinx.coroutines.flow.*
 import okhttp3.*
 import okio.ByteString
 import okio.ByteString.Companion.toByteString
-import org.zero.brotlilib.dec.Decoder
 import java.nio.ByteBuffer
 
 class LiveRoomPlaybackViewModel(
@@ -194,7 +194,7 @@ class LiveRoomPlaybackViewModel(
                         byteBuffer.position(16)
                         val contentBytes = ByteArray(packetLength - 16)
                         byteBuffer.get(contentBytes)
-                        val bf = ByteBuffer.wrap(Decoder.decompress(contentBytes))
+                        val bf = ByteBuffer.wrap(contentBytes.decompressBrotli())
                         val length = bf.getInt(0)
                         val decompressedContent = ByteArray(length - 16)
                         bf.position(16)

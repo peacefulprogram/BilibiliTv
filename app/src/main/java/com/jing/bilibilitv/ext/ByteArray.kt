@@ -1,5 +1,6 @@
 package com.jing.bilibilitv.ext
 
+import org.brotli.dec.BrotliInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.util.zip.Inflater
@@ -26,6 +27,12 @@ fun ByteArray.unzip(): ByteArray {
 }
 
 
-fun ByteArray.decompressBrotli() {
-
+fun ByteArray.decompressBrotli(): ByteArray {
+    val input = BrotliInputStream(this.inputStream())
+    val output = ByteArrayOutputStream()
+    input.copyTo(output)
+    val result = output.toByteArray()
+    input.close()
+    output.close()
+    return result
 }
