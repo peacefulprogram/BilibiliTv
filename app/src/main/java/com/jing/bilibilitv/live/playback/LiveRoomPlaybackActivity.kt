@@ -34,7 +34,7 @@ class LiveRoomPlaybackActivity : FragmentActivity() {
         supportFragmentManager.beginTransaction()
             .replace(
                 R.id.activity_playback,
-                LiveRoomPlaybackFragment(viewModel, okHttpClient)
+                LiveRoomPlaybackFragment(viewModel)
             )
             .commit()
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)

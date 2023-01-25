@@ -79,7 +79,14 @@ class LiveRoomPlaybackViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             _liveStreamUrl.emit(Resource.Loading())
             try {
-                _liveStreamUrl.emit(Resource.Success(liveApi.queryLiveStreamUrl(roomId).data!!))
+                _liveStreamUrl.emit(
+                    Resource.Success(
+                        liveApi.queryLiveStreamUrl(
+                            roomId = roomId,
+                            platform = "web"
+                        ).data!!
+                    )
+                )
             } catch (e: Exception) {
                 _liveStreamUrl.emit(Resource.Error("加载视频流失败:${e.message}", e))
             }
