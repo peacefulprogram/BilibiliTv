@@ -362,6 +362,9 @@ class LbVideoPlaybackFragment(
             viewWidth = 130,
             getText = { _, qn -> qn.second }
         ) {
+            if (exoPlayer!!.currentPosition > 0) {
+                playerDelegate.resumePosition = exoPlayer!!.currentPosition
+            }
             viewModel.changeQn(it.first)
         }.apply {
             showDialog(this)
@@ -388,12 +391,21 @@ class LbVideoPlaybackFragment(
 
     fun onKeyEvent(keyEvent: KeyEvent): Boolean {
         if (keyEvent.keyCode == KeyEvent.KEYCODE_BACK) {
+            if (keyEvent.action == KeyEvent.ACTION_DOWN) {
+                return true
+            }
+            if (isControlsOverlayVisible) {
+                hideControlsOverlay(false)
+                return true
+            }
             if (!playerDelegate.isPlaying) {
                 backPressed = false
-                return false
+                requireActivity().finish()
+                return true
             }
             if (backPressed) {
-                return false
+                requireActivity().finish()
+                return true
             }
             backPressed = true
             Toast.makeText(requireContext(), "再按一次退出播放", Toast.LENGTH_SHORT).show()
@@ -404,6 +416,9 @@ class LbVideoPlaybackFragment(
             return true
         }
         if (keyEvent.keyCode == KeyEvent.KEYCODE_DPAD_CENTER && !isControlsOverlayVisible) {
+            if (keyEvent.action == KeyEvent.ACTION_DOWN) {
+                return true
+            }
             if (exoPlayer?.isPlaying == true) {
                 exoPlayer?.pause()
             } else {
@@ -414,6 +429,18 @@ class LbVideoPlaybackFragment(
 
         if (keyEvent.keyCode == KeyEvent.KEYCODE_MENU) {
             openPlayListDialogAndChoose()
+            return true
+        }
+        // info键控制进度条显示或者隐藏
+        if (keyEvent.keyCode == KeyEvent.KEYCODE_INFO) {
+            if (keyEvent.action == KeyEvent.ACTION_DOWN) {
+                return true
+            }
+            if (isControlsOverlayVisible) {
+                hideControlsOverlay(true)
+            } else {
+                showControlsOverlay(true)
+            }
             return true
         }
         return false
