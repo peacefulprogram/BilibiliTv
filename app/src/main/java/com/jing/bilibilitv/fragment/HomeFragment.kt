@@ -148,6 +148,13 @@ class HomeFragment : Fragment() {
 
         }
 
+    fun refreshPagerContent(pageIndex: Int): Unit {
+        val fragment = pagerFragmentList[pageIndex].second
+        if (fragment is IRefreshableFragment) {
+            fragment.doRefresh()
+        }
+    }
+
 
     private inner class TabItemAdapter(
         private val switchPage: (Int) -> Unit,
@@ -181,6 +188,14 @@ class HomeFragment : Fragment() {
                 when (item) {
                     is CustomTabItem.PagerItem -> {
                         text = item.text
+                        setOnKeyListener { _, keyCode, ev ->
+                            if (keyCode == KeyEvent.KEYCODE_MENU && ev.action == KeyEvent.ACTION_UP) {
+                                refreshPagerContent(item.pageIndex)
+                                true
+                            } else {
+                                false
+                            }
+                        }
                         setOnFocusChangeListener { _, hasFocus ->
                             if (hasFocus) {
                                 switchPage(item.pageIndex)
