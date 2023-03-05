@@ -25,11 +25,11 @@
 - [x] 分p视频
 
 未实现功能
-- [] 剧集和番剧
+- [ ] 剧集和番剧
 
 ## 截图
-![首页][img/home.png]
-![搜索][img/search.png]
+![首页](img/home.png)
+![搜索](img/search.png)
 
 ## THANKS TO
 - [SocialSisterYi/bilibili-API-collect](https://github.com/SocialSisterYi/bilibili-API-collect): 哔哩哔哩-API收集整理
