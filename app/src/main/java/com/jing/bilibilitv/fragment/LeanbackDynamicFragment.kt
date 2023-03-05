@@ -26,6 +26,7 @@ import com.jing.bilibilitv.http.data.DynamicItem
 import com.jing.bilibilitv.model.DynamicViewModel
 import com.jing.bilibilitv.presenter.CustomGridViewPresenter
 import com.jing.bilibilitv.user.UserSpaceActivity
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -51,8 +52,14 @@ class LeanbackDynamicFragment(private val getSelectTabView: () -> View? = { null
                         LoadState.Loading -> startRefresh = true
                         is LoadState.NotLoading -> if (startRefresh) {
                             startRefresh = false
-                            mGridPresenter.gridView?.selectedPosition = 0
-                            Log.d(TAG, "dynamic refresh finish,thread ${Thread.currentThread()}")
+                            lifecycleScope.launch {
+                                delay(100)
+                                mGridPresenter.gridView?.selectedPosition = 0
+                                Log.d(
+                                    TAG,
+                                    "dynamic refresh finish,thread ${Thread.currentThread()}"
+                                )
+                            }
                         }
                         else -> {}
                     }
