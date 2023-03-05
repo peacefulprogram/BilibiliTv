@@ -165,7 +165,7 @@ class VideoHistoryFragment(private val getTopTabView: () -> View? = { null }) :
                         cover.background = null
                     }
                 }
-                videoDuration.text =
+                videoDuration.text = if (historyItem.progress < 0) "已看完" else
                     historyItem.progress.secondsToDuration() + "/" + historyItem.duration.secondsToDuration()
                 username.text = historyItem.authorName
             }
