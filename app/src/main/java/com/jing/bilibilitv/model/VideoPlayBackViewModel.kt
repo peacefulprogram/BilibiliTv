@@ -182,6 +182,17 @@ class VideoPlayBackViewModel @Inject constructor(
         }
     }
 
+
+    fun playNextPIfExists() {
+        if (_videoPages.size < 2) {
+            return
+        }
+        _videoPages.indexOfFirst { it.cid == _cidState.value }
+            .takeIf { it != -1 && it < _videoPages.size - 1 }
+            ?.let { changePage(_videoPages[it + 1]) }
+
+    }
+
     fun toggleDanmuState() {
         viewModelScope.launch(Dispatchers.Default) {
             _danmuEnable.emit(!_danmuEnable.value)

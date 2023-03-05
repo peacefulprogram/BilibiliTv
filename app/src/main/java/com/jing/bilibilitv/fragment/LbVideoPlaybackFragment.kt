@@ -241,6 +241,12 @@ class LbVideoPlaybackFragment(
                     }
                 }
 
+                override fun onPlaybackStateChanged(playbackState: Int) {
+                    if (playbackState == ExoPlayer.STATE_ENDED) {
+                        viewModel.playNextPIfExists()
+                    }
+                }
+
             })
         }
     }
