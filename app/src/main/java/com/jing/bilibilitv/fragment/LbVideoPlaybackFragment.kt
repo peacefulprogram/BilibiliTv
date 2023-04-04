@@ -1,5 +1,6 @@
 package com.jing.bilibilitv.fragment
 
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
@@ -7,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.graphics.drawable.toDrawable
 import androidx.fragment.app.activityViewModels
 import androidx.leanback.R
 import androidx.leanback.app.VideoSupportFragment
@@ -136,6 +138,7 @@ class LbVideoPlaybackFragment(
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        view.background = Color.BLACK.toDrawable()
         super.onViewCreated(view, savedInstanceState)
         snapshotLoader = ImageLoader(requireContext())
         lifecycleScope.launch {

@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.graphics.drawable.toDrawable
 import androidx.leanback.R
 import androidx.leanback.app.VideoSupportFragment
 import androidx.leanback.app.VideoSupportFragmentGlueHost
@@ -48,6 +49,12 @@ class LiveRoomPlaybackFragment(
     }
 
     private lateinit var glue: ProgressTransportControlGlue<LeanbackPlayerAdapter>
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        view.background = Color.BLACK.toDrawable()
+        super.onViewCreated(view, savedInstanceState)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
