@@ -14,7 +14,7 @@ data class UserInfo(
      * 1：已验证
      */
     @SerializedName("mobile_verified")
-    val mobileVerified: Int,
+    val mobileVerified: Long,
     val money: Double,
     val uname: String,
     /**
@@ -26,21 +26,21 @@ data class UserInfo(
      * 0：无
      * 1：有
      */
-    val vipStatus: Int,
+    val vipStatus: Long,
     /**
      * 会员类型
      * 0：无
      * 1：月度大会员
      * 2：年度及以上大会员
      */
-    val vipType: Int
+    val vipType: Long
 )
 
 data class UserLevelInfo(
     @SerializedName("current_level")
-    val currentLevel: Int,
+    val currentLevel: Long,
     @SerializedName("current_min")
-    val currentMin: Int,
+    val currentMin: Long,
     @SerializedName("current_exp")
-    val currentExp: Int,
+    val currentExp: Long,
 )

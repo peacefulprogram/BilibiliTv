@@ -16,11 +16,11 @@ data class LiveRoomSubArea(
     @SerializedName("act_id")
     val actId: String,
     @SerializedName("area_type")
-    val areaType: Int,
+    val areaType: Long,
     @SerializedName("complex_area_name")
     val complexAreaName: String,
     @SerializedName("hot_status")
-    val hotStatus: Int,
+    val hotStatus: Long,
     @SerializedName("id")
     val id: String,
     @SerializedName("lock_status")

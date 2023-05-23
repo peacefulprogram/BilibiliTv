@@ -29,6 +29,12 @@ android {
     buildFeatures {
         viewBinding true
     }
+
+    packagingOptions {
+        exclude 'META-INF/INDEX.LIST'
+        exclude 'META-INF/LISCENSE'
+        exclude 'META-INF/LISCENSE.txt'
+    }
 }
 
 dependencies {
@@ -100,5 +106,8 @@ dependencies {
 
     // https://mvnrepository.com/artifact/org.brotli/dec
     implementation("org.brotli:dec:0.1.2")
+
+    // https://mvnrepository.com/artifact/cn.hutool/hutool-crypto
+    implementation 'cn.hutool:hutool-crypto:5.8.18'
 
 }

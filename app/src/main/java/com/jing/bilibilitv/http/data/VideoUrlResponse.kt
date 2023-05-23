@@ -24,7 +24,7 @@ data class VideoUrlResponse(
     @SerializedName("message")
     val message: String,
     @SerializedName("quality")
-    val quality: Int,
+    val quality: Long,
     @SerializedName("result")
     val result: String,
     @SerializedName("seek_param")
@@ -34,16 +34,16 @@ data class VideoUrlResponse(
     @SerializedName("support_formats")
     val supportFormats: List<VideoUrlSupportFormat>,
     @SerializedName("timelength")
-    val timelength: Int,
+    val timelength: Long,
     @SerializedName("video_codecid")
-    val videoCodecid: Int
+    val videoCodecid: Long
 )
 
 data class VideoUrlDash(
     @SerializedName("audio")
     val audio: List<VideoUrlAudio>,
     @SerializedName("duration")
-    val duration: Int,
+    val duration: Long,
     @SerializedName("minBufferTime")
     val minBufferTime: Double,
     @SerializedName("video")
@@ -69,19 +69,19 @@ data class VideoUrlAudio(
     @SerializedName("backup_url")
     val backupUrl: List<String>,
     @SerializedName("bandwidth")
-    val bandwidth: Int,
+    val bandwidth: Long,
     @SerializedName("base_url")
     val baseUrl: String,
     @SerializedName("codecid")
-    val codecid: Int,
+    val codecid: Long,
     @SerializedName("codecs")
     val codecs: String,
     @SerializedName("frame_rate")
     val frameRate: String,
     @SerializedName("height")
-    val height: Int,
+    val height: Long,
     @SerializedName("id")
-    val id: Int,
+    val id: Long,
     @SerializedName("mimeType")
     val mimeType: String,
     @SerializedName("sar")
@@ -89,20 +89,20 @@ data class VideoUrlAudio(
     @SerializedName("segment_base")
     val segmentBase: VideoUrlSegmentBaseX,
     @SerializedName("start_with_sap")
-    val startWithSap: Int,
+    val startWithSap: Long,
     @SerializedName("width")
-    val width: Int
+    val width: Long
 )
 
 data class VideoUrlVideo(
     @SerializedName("backup_url")
     val backupUrl: List<String>,
     @SerializedName("bandwidth")
-    val bandwidth: Int,
+    val bandwidth: Long,
     @SerializedName("base_url")
     val baseUrl: String,
     @SerializedName("codecid")
-    val codecid: Int,
+    val codecid: Long,
     @SerializedName("codecs")
     val codecs: String,
     @SerializedName("frame_rate")
@@ -118,7 +118,7 @@ data class VideoUrlVideo(
     @SerializedName("segment_base")
     val segmentBase: VideoUrlSegmentBase,
     @SerializedName("start_with_sap")
-    val startWithSap: Int,
+    val startWithSap: Long,
     @SerializedName("width")
     val width: Int
 )

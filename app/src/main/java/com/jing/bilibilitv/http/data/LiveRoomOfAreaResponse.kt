@@ -6,7 +6,7 @@ data class LiveRoomOfAreaResponse(
     @SerializedName("list")
     val list: List<LiveRoomOfArea>?,
     @SerializedName("count")
-    val count: Int,
+    val count: Long,
     @SerializedName("has_more")
     val hasMore: Int
 )

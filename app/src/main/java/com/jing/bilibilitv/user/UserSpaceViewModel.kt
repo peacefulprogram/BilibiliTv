@@ -1,5 +1,6 @@
 package com.jing.bilibilitv.user
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
@@ -20,6 +21,8 @@ import kotlin.math.ceil
 
 class UserSpaceViewModel(private val mid: Long, private val bilibiliApi: BilibiliApi) :
     ViewModel() {
+
+    private val TAG = UserSpaceViewModel::class.java.simpleName
 
     val pager = Pager(
         config = PagingConfig(
@@ -90,6 +93,9 @@ class UserSpaceViewModel(private val mid: Long, private val bilibiliApi: Bilibil
         private val mid: Long,
         private val bilibiliApi: BilibiliApi
     ) : PagingSource<Int, UserVideoVlist>() {
+
+        private val TAG = UserVideoPagingSource::class.java.simpleName
+
         override fun getRefreshKey(state: PagingState<Int, UserVideoVlist>): Int? {
             return null
         }
@@ -109,6 +115,7 @@ class UserSpaceViewModel(private val mid: Long, private val bilibiliApi: Bilibil
                     nextKey = if (pageNumber < totalPage) pageNumber + 1 else null
                 )
             } catch (e: Exception) {
+                Log.e(TAG, "加载用户视频失败:${e.message}", e)
                 return LoadResult.Error(e)
             }
         }

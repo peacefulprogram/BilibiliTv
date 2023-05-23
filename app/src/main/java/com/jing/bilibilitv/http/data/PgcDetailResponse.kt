@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName
 
 data class PgcDetailResponse(
     @SerializedName("code")
-    val code: Int,
+    val code: Long,
     @SerializedName("message")
     val message: String,
     @SerializedName("result")
@@ -34,9 +34,9 @@ data class PgcDetailResult(
     @SerializedName("link")
     val link: String,
     @SerializedName("media_id")
-    val mediaId: Int,
+    val mediaId: Long,
     @SerializedName("mode")
-    val mode: Int,
+    val mode: Long,
     @SerializedName("new_ep")
     val newEp: PgcDetailNewEp,
     @SerializedName("payment")
@@ -52,7 +52,7 @@ data class PgcDetailResult(
     @SerializedName("rights")
     val rights: PgcDetailRightsX,
     @SerializedName("season_id")
-    val seasonId: Int,
+    val seasonId: Long,
     @SerializedName("season_title")
     val seasonTitle: String,
     @SerializedName("seasons")
@@ -70,21 +70,21 @@ data class PgcDetailResult(
     @SerializedName("show")
     val show: PgcDetailShow,
     @SerializedName("show_season_type")
-    val showSeasonType: Int,
+    val showSeasonType: Long,
     @SerializedName("square_cover")
     val squareCover: String,
     @SerializedName("stat")
     val stat: PgcDetailStatXX,
     @SerializedName("status")
-    val status: Int,
+    val status: Long,
     @SerializedName("subtitle")
     val subtitle: String,
     @SerializedName("title")
     val title: String,
     @SerializedName("total")
-    val total: Int,
+    val total: Long,
     @SerializedName("type")
-    val type: Int,
+    val type: Long,
     @SerializedName("up_info")
     val upInfo: PgcDetailUpInfo,
     @SerializedName("user_status")
@@ -95,41 +95,41 @@ data class PgcDetailActivity(
     @SerializedName("head_bg_url")
     val headBgUrl: String,
     @SerializedName("id")
-    val id: Int,
+    val id: Long,
     @SerializedName("title")
     val title: String
 )
 
 data class PgcDetailArea(
     @SerializedName("id")
-    val id: Int,
+    val id: Long,
     @SerializedName("name")
     val name: String
 )
 
 data class PgcDetailEpisode(
     @SerializedName("aid")
-    val aid: Int,
+    val aid: Long,
     @SerializedName("badge")
     val badge: String,
     @SerializedName("badge_info")
     val badgeInfo: PgcDetailBadgeInfo,
     @SerializedName("badge_type")
-    val badgeType: Int,
+    val badgeType: Long,
     @SerializedName("bvid")
     val bvid: String,
     @SerializedName("cid")
-    val cid: Int,
+    val cid: Long,
     @SerializedName("cover")
     val cover: String,
     @SerializedName("dimension")
     val dimension: PgcDetailDimension,
     @SerializedName("duration")
-    val duration: Int,
+    val duration: Long,
     @SerializedName("from")
     val from: String,
     @SerializedName("id")
-    val id: Int,
+    val id: Long,
     @SerializedName("is_view_hide")
     val isViewHide: Boolean,
     @SerializedName("link")
@@ -137,9 +137,9 @@ data class PgcDetailEpisode(
     @SerializedName("long_title")
     val longTitle: String,
     @SerializedName("pub_time")
-    val pubTime: Int,
+    val pubTime: Long,
     @SerializedName("pv")
-    val pv: Int,
+    val pv: Long,
     @SerializedName("release_date")
     val releaseDate: String,
     @SerializedName("rights")
@@ -153,7 +153,7 @@ data class PgcDetailEpisode(
     @SerializedName("skip")
     val skip: PgcDetailSkip,
     @SerializedName("status")
-    val status: Int,
+    val status: Long,
     @SerializedName("subtitle")
     val subtitle: String,
     @SerializedName("title")
@@ -166,25 +166,25 @@ data class PgcDetailFreya(
     @SerializedName("bubble_desc")
     val bubbleDesc: String,
     @SerializedName("bubble_show_cnt")
-    val bubbleShowCnt: Int,
+    val bubbleShowCnt: Long,
     @SerializedName("icon_show")
-    val iconShow: Int
+    val iconShow: Long
 )
 
 data class PgcDetailNewEp(
     @SerializedName("desc")
     val desc: String,
     @SerializedName("id")
-    val id: Int,
+    val id: Long,
     @SerializedName("is_new")
-    val isNew: Int,
+    val isNew: Long,
     @SerializedName("title")
     val title: String
 )
 
 data class PgcDetailPayment(
     @SerializedName("discount")
-    val discount: Int,
+    val discount: Long,
     @SerializedName("pay_type")
     val payType: PgcDetailPayType,
     @SerializedName("price")
@@ -194,9 +194,9 @@ data class PgcDetailPayment(
     @SerializedName("tip")
     val tip: String,
     @SerializedName("view_start_time")
-    val viewStartTime: Int,
+    val viewStartTime: Long,
     @SerializedName("vip_discount")
-    val vipDiscount: Int,
+    val vipDiscount: Long,
     @SerializedName("vip_first_promotion")
     val vipFirstPromotion: String,
     @SerializedName("vip_promotion")
@@ -205,64 +205,64 @@ data class PgcDetailPayment(
 
 data class PgcDetailPositive(
     @SerializedName("id")
-    val id: Int,
+    val id: Long,
     @SerializedName("title")
     val title: String
 )
 
 data class PgcDetailPublish(
     @SerializedName("is_finish")
-    val isFinish: Int,
+    val isFinish: Long,
     @SerializedName("is_started")
-    val isStarted: Int,
+    val isStarted: Long,
     @SerializedName("pub_time")
     val pubTime: String,
     @SerializedName("pub_time_show")
     val pubTimeShow: String,
     @SerializedName("unknow_pub_date")
-    val unknowPubDate: Int,
+    val unknowPubDate: Long,
     @SerializedName("weekday")
-    val weekday: Int
+    val weekday: Long
 )
 
 data class PgcDetailRating(
     @SerializedName("count")
-    val count: Int,
+    val count: Long,
     @SerializedName("score")
     val score: Double
 )
 
 data class PgcDetailRightsX(
     @SerializedName("allow_bp")
-    val allowBp: Int,
+    val allowBp: Long,
     @SerializedName("allow_bp_rank")
-    val allowBpRank: Int,
+    val allowBpRank: Long,
     @SerializedName("allow_download")
-    val allowDownload: Int,
+    val allowDownload: Long,
     @SerializedName("allow_review")
-    val allowReview: Int,
+    val allowReview: Long,
     @SerializedName("area_limit")
-    val areaLimit: Int,
+    val areaLimit: Long,
     @SerializedName("ban_area_show")
-    val banAreaShow: Int,
+    val banAreaShow: Long,
     @SerializedName("can_watch")
-    val canWatch: Int,
+    val canWatch: Long,
     @SerializedName("copyright")
     val copyright: String,
     @SerializedName("forbid_pre")
-    val forbidPre: Int,
+    val forbidPre: Long,
     @SerializedName("freya_white")
-    val freyaWhite: Int,
+    val freyaWhite: Long,
     @SerializedName("is_cover_show")
-    val isCoverShow: Int,
+    val isCoverShow: Long,
     @SerializedName("is_preview")
-    val isPreview: Int,
+    val isPreview: Long,
     @SerializedName("only_vip_download")
-    val onlyVipDownload: Int,
+    val onlyVipDownload: Long,
     @SerializedName("resource")
     val resource: String,
     @SerializedName("watch_platform")
-    val watchPlatform: Int
+    val watchPlatform: Long
 )
 
 data class PgcDetailSeason(
@@ -271,7 +271,7 @@ data class PgcDetailSeason(
     @SerializedName("badge_info")
     val badgeInfo: PgcDetailBadgeInfo,
     @SerializedName("badge_type")
-    val badgeType: Int,
+    val badgeType: Long,
     @SerializedName("cover")
     val cover: String,
     @SerializedName("horizontal_cover_1610")
@@ -279,67 +279,67 @@ data class PgcDetailSeason(
     @SerializedName("horizontal_cover_169")
     val horizontalCover169: String,
     @SerializedName("media_id")
-    val mediaId: Int,
+    val mediaId: Long,
     @SerializedName("new_ep")
     val newEp: PgcDetailNewEp,
     @SerializedName("season_id")
-    val seasonId: Int,
+    val seasonId: Long,
     @SerializedName("season_title")
     val seasonTitle: String,
     @SerializedName("season_type")
-    val seasonType: Int,
+    val seasonType: Long,
     @SerializedName("stat")
     val stat: PgcDetailStat
 )
 
 data class PgcDetailSection(
     @SerializedName("attr")
-    val attr: Int,
+    val attr: Long,
     @SerializedName("episode_id")
-    val episodeId: Int,
+    val episodeId: Long,
     @SerializedName("episode_ids")
     val episodeIds: List<Any>,
     @SerializedName("episodes")
     val episodes: List<PgcDetailEpisode>,
     @SerializedName("id")
-    val id: Int,
+    val id: Long,
     @SerializedName("title")
     val title: String,
     @SerializedName("type")
-    val type: Int
+    val type: Long
 )
 
 data class PgcDetailSeries(
     @SerializedName("display_type")
-    val displayType: Int,
+    val displayType: Long,
     @SerializedName("series_id")
-    val seriesId: Int,
+    val seriesId: Long,
     @SerializedName("series_title")
     val seriesTitle: String
 )
 
 data class PgcDetailShow(
     @SerializedName("wide_screen")
-    val wideScreen: Int
+    val wideScreen: Long
 )
 
 data class PgcDetailStatXX(
     @SerializedName("coins")
-    val coins: Int,
+    val coins: Long,
     @SerializedName("danmakus")
-    val danmakus: Int,
+    val danmakus: Long,
     @SerializedName("favorite")
-    val favorite: Int,
+    val favorite: Long,
     @SerializedName("favorites")
-    val favorites: Int,
+    val favorites: Long,
     @SerializedName("likes")
-    val likes: Int,
+    val likes: Long,
     @SerializedName("reply")
-    val reply: Int,
+    val reply: Long,
     @SerializedName("share")
-    val share: Int,
+    val share: Long,
     @SerializedName("views")
-    val views: Int
+    val views: Long
 )
 
 data class PgcDetailUpInfo(
@@ -348,46 +348,46 @@ data class PgcDetailUpInfo(
     @SerializedName("avatar_subscript_url")
     val avatarSubscriptUrl: String,
     @SerializedName("follower")
-    val follower: Int,
+    val follower: Long,
     @SerializedName("is_follow")
-    val isFollow: Int,
+    val isFollow: Long,
     @SerializedName("mid")
-    val mid: Int,
+    val mid: Long,
     @SerializedName("nickname_color")
     val nicknameColor: String,
     @SerializedName("pendant")
     val pendant: PgcDetailPendant,
     @SerializedName("theme_type")
-    val themeType: Int,
+    val themeType: Long,
     @SerializedName("uname")
     val uname: String,
     @SerializedName("verify_type")
-    val verifyType: Int,
+    val verifyType: Long,
     @SerializedName("vip_label")
     val vipLabel: PgcDetailVipLabel,
     @SerializedName("vip_status")
-    val vipStatus: Int,
+    val vipStatus: Long,
     @SerializedName("vip_type")
-    val vipType: Int
+    val vipType: Long
 )
 
 data class PgcDetailUserStatus(
     @SerializedName("area_limit")
-    val areaLimit: Int,
+    val areaLimit: Long,
     @SerializedName("ban_area_show")
-    val banAreaShow: Int,
+    val banAreaShow: Long,
     @SerializedName("follow")
-    val follow: Int,
+    val follow: Long,
     @SerializedName("follow_status")
-    val followStatus: Int,
+    val followStatus: Long,
     @SerializedName("login")
-    val login: Int,
+    val login: Long,
     @SerializedName("pay")
-    val pay: Int,
+    val pay: Long,
     @SerializedName("pay_pack_paid")
-    val payPackPaid: Int,
+    val payPackPaid: Long,
     @SerializedName("sponsor")
-    val sponsor: Int
+    val sponsor: Long
 )
 
 data class PgcDetailBadgeInfo(
@@ -410,13 +410,13 @@ data class PgcDetailDimension(
 
 data class PgcDetailRights(
     @SerializedName("allow_demand")
-    val allowDemand: Int,
+    val allowDemand: Long,
     @SerializedName("allow_dm")
-    val allowDm: Int,
+    val allowDm: Long,
     @SerializedName("allow_download")
-    val allowDownload: Int,
+    val allowDownload: Long,
     @SerializedName("area_limit")
-    val areaLimit: Int
+    val areaLimit: Long
 )
 
 data class PgcDetailSkip(
@@ -435,34 +435,34 @@ data class PgcDetailEd(
 
 data class PgcDetailOp(
     @SerializedName("end")
-    val end: Int,
+    val end: Long,
     @SerializedName("start")
-    val start: Int
+    val start: Long
 )
 
 data class PgcDetailPayType(
     @SerializedName("allow_discount")
-    val allowDiscount: Int,
+    val allowDiscount: Long,
     @SerializedName("allow_pack")
-    val allowPack: Int,
+    val allowPack: Long,
     @SerializedName("allow_ticket")
-    val allowTicket: Int,
+    val allowTicket: Long,
     @SerializedName("allow_time_limit")
-    val allowTimeLimit: Int,
+    val allowTimeLimit: Long,
     @SerializedName("allow_vip_discount")
-    val allowVipDiscount: Int,
+    val allowVipDiscount: Long,
     @SerializedName("forbid_bb")
-    val forbidBb: Int
+    val forbidBb: Long
 )
 
 
 data class PgcDetailStat(
     @SerializedName("favorites")
-    val favorites: Int,
+    val favorites: Long,
     @SerializedName("series_follow")
-    val seriesFollow: Int,
+    val seriesFollow: Long,
     @SerializedName("views")
-    val views: Int
+    val views: Long
 )
 
 
@@ -472,14 +472,14 @@ data class PgcDetailPendant(
     @SerializedName("name")
     val name: String,
     @SerializedName("pid")
-    val pid: Int
+    val pid: Long
 )
 
 data class PgcDetailVipLabel(
     @SerializedName("bg_color")
     val bgColor: String,
     @SerializedName("bg_style")
-    val bgStyle: Int,
+    val bgStyle: Long,
     @SerializedName("border_color")
     val borderColor: String,
     @SerializedName("text")

@@ -5,13 +5,13 @@ import com.google.gson.annotations.SerializedName
 
 data class UserDetailResponse(
     @SerializedName("coins")
-    val coins: Int,
+    val coins: Long,
     @SerializedName("face")
     val face: String,
     @SerializedName("face_nft")
-    val faceNft: Int,
+    val faceNft: Long,
     @SerializedName("face_nft_type")
-    val faceNftType: Int,
+    val faceNftType: Long,
     @SerializedName("fans_badge")
     val fansBadge: Boolean,
     @SerializedName("is_followed")
@@ -19,46 +19,46 @@ data class UserDetailResponse(
     @SerializedName("is_risk")
     val isRisk: Boolean,
     @SerializedName("is_senior_member")
-    val isSeniorMember: Int,
+    val isSeniorMember: Long,
     @SerializedName("jointime")
-    val jointime: Int,
+    val jointime: Long,
     @SerializedName("level")
-    val level: Int,
+    val level: Long,
     @SerializedName("live_room")
     val liveRoom: UserDetailLiveRoom,
     @SerializedName("mid")
-    val mid: Int,
+    val mid: Long,
     @SerializedName("moral")
-    val moral: Int,
+    val moral: Long,
     @SerializedName("name")
     val name: String,
     @SerializedName("official")
     val official: UserDetailOfficial,
     @SerializedName("rank")
-    val rank: Int,
+    val rank: Long,
     @SerializedName("sex")
     val sex: String,
     @SerializedName("sign")
     val sign: String,
     @SerializedName("silence")
-    val silence: Int,
+    val silence: Long,
     @SerializedName("top_photo")
     val topPhoto: String
 )
 
 data class UserDetailLiveRoom(
     @SerializedName("broadcast_type")
-    val broadcastType: Int,
+    val broadcastType: Long,
     @SerializedName("cover")
     val cover: String,
     @SerializedName("liveStatus")
-    val liveStatus: Int,
+    val liveStatus: Long,
     @SerializedName("roomStatus")
-    val roomStatus: Int,
+    val roomStatus: Long,
     @SerializedName("roomid")
-    val roomid: Int,
+    val roomid: Long,
     @SerializedName("roundStatus")
-    val roundStatus: Int,
+    val roundStatus: Long,
     @SerializedName("title")
     val title: String,
     @SerializedName("url")
@@ -71,11 +71,11 @@ data class UserDetailOfficial(
     @SerializedName("desc")
     val desc: String,
     @SerializedName("role")
-    val role: Int,
+    val role: Long,
     @SerializedName("title")
     val title: String,
     @SerializedName("type")
-    val type: Int
+    val type: Long
 )
 
 data class UserDetailWatchedShow(
@@ -86,7 +86,7 @@ data class UserDetailWatchedShow(
     @SerializedName("icon_web")
     val iconWeb: String,
     @SerializedName("num")
-    val num: Int,
+    val num: Long,
     @SerializedName("switch")
     val switch: Boolean,
     @SerializedName("text_large")

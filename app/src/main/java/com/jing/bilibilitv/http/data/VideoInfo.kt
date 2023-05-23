@@ -14,9 +14,9 @@ data class VideoInfo(
     @SerializedName("pubdate")
     val pubDate: Long,
     @SerializedName("is_followed")
-    val isFollowed: Int,
+    val isFollowed: Long,
     @SerializedName("show_info")
-    val showInfo: Int,
+    val showInfo: Long,
     @SerializedName("track_id")
     val trackId: String,
     val stat: VideoInfoStat,
@@ -33,10 +33,10 @@ data class VideoInfo(
 }
 
 data class VideoInfoStat(
-    val view: Int,
-    val like: Int,
+    val view: Long,
+    val like: Long,
     @SerializedName("danmaku")
-    val danmuku: Int
+    val danmuku: Long
 )
 
 data class VideoInfoOwner(

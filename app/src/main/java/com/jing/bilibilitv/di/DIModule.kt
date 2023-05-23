@@ -9,6 +9,7 @@ import com.jing.bilibilitv.http.api.BilibiliApi
 import com.jing.bilibilitv.http.api.LiveApi
 import com.jing.bilibilitv.http.api.PassportApi
 import com.jing.bilibilitv.http.api.SearchApi
+import com.jing.bilibilitv.http.api.wbi.WbiInterceptor
 import com.jing.bilibilitv.http.cookie.BilibiliCookieJar
 import com.jing.bilibilitv.room.BilibiliDatabase
 import com.jing.bilibilitv.room.dao.BlCookieDao
@@ -64,6 +65,7 @@ class DIModule {
         val builder = OkHttpClient
             .Builder()
             .cookieJar(cookieJar)
+            .addInterceptor(WbiInterceptor())
             .addInterceptor(Interceptor { chain ->
                 chain.request().newBuilder()
                     .header(

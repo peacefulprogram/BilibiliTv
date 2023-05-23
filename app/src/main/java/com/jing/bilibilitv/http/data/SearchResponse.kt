@@ -14,13 +14,13 @@ data class SearchResultWrapper<T : BilibiliSearchResult>(
     @SerializedName("in_white_key")
     val inWhiteKey: Long,
     @SerializedName("numPages")
-    val numPages: Int,
+    val numPages: Long,
     @SerializedName("numResults")
     val numResults: Long,
     @SerializedName("page")
-    val page: Int,
+    val page: Long,
     @SerializedName("pagesize")
-    val pageSize: Int,
+    val pageSize: Long,
     @SerializedName("rqt_type")
     val rqtType: String,
     @SerializedName("seid")

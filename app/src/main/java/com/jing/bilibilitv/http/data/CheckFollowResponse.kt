@@ -4,14 +4,14 @@ import com.google.gson.annotations.SerializedName
 
 data class CheckFollowResponse(
     @SerializedName("attribute")
-    val attribute: Int,
+    val attribute: Long,
     @SerializedName("mid")
-    val mid: Int,
+    val mid: Long,
     @SerializedName("mtime")
-    val mtime: Int,
+    val mtime: Long,
     @SerializedName("special")
-    val special: Int
+    val special: Long
 ) {
-    fun isFollowing(): Boolean = attribute == 2 || attribute == 6
+    fun isFollowing(): Boolean = attribute == 2L || attribute == 6L
 }
 

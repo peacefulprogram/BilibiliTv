@@ -7,9 +7,9 @@ data class KeywordSuggestResponse(
     @SerializedName("name")
     val name: String,
     @SerializedName("ref")
-    val ref: Int,
+    val ref: Long,
     @SerializedName("spid")
-    val spid: Int,
+    val spid: Long,
     @SerializedName("term")
     val term: String,
     @SerializedName("value")

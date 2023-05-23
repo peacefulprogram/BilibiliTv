@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 
 data class FollowedLiveRoomResponse(
-    val count: Int,
+    val count: Long,
     val rooms: List<FollowedLiveRoom>?
 )
 

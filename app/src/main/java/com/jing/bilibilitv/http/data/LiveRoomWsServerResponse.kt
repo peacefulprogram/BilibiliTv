@@ -5,15 +5,15 @@ import com.google.gson.annotations.SerializedName
 
 data class LiveRoomWsResponse(
     @SerializedName("business_id")
-    val businessId: Int,
+    val businessId: Long,
     @SerializedName("group")
     val group: String,
     @SerializedName("host_list")
     val hostList: List<LiveRoomWsHost>,
     @SerializedName("max_delay")
-    val maxDelay: Int,
+    val maxDelay: Long,
     @SerializedName("refresh_rate")
-    val refreshRate: Int,
+    val refreshRate: Long,
     @SerializedName("refresh_row_factor")
     val refreshRowFactor: Double,
     @SerializedName("token")
@@ -24,9 +24,9 @@ data class LiveRoomWsHost(
     @SerializedName("host")
     val host: String,
     @SerializedName("port")
-    val port: Int,
+    val port: Long,
     @SerializedName("ws_port")
-    val wsPort: Int,
+    val wsPort: Long,
     @SerializedName("wss_port")
-    val wssPort: Int
+    val wssPort: Long
 )

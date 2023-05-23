@@ -1,6 +1,7 @@
 package com.jing.bilibilitv.http.api
 
 import com.jing.bilibilitv.GlobalState
+import com.jing.bilibilitv.http.api.wbi.WBI_HEADER
 import com.jing.bilibilitv.http.data.*
 import okhttp3.ResponseBody
 import retrofit2.http.*
@@ -257,6 +258,7 @@ interface BilibiliApi {
     ): CommonDataResponse<Unit>
 
     @GET("/x/space/wbi/arc/search")
+    @Headers("$WBI_HEADER:true")
     suspend fun queryVideoOfUser(
         @Query("mid") mid: Long,
         @Query("pn") pageNumber: Int,
@@ -269,6 +271,7 @@ interface BilibiliApi {
      * 查询用户详情
      */
     @GET("/x/space/wbi/acc/info")
+    @Headers("$WBI_HEADER:true")
     suspend fun getUserDetail(
         @Query("mid") mid: Long
     ): CommonDataResponse<UserDetailResponse>
