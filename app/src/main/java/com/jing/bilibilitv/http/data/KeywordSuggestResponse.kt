@@ -15,3 +15,11 @@ data class KeywordSuggestResponse(
     @SerializedName("value")
     val value: String
 )
+
+data class KeywordSuggestResponseWrapper(
+    val result: KeywordSuggestResponseResult
+)
+
+data class KeywordSuggestResponseResult(
+    val tag:List<KeywordSuggestResponse>
+)

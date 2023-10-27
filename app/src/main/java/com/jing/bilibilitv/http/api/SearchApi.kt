@@ -2,6 +2,7 @@ package com.jing.bilibilitv.http.api
 
 import com.jing.bilibilitv.http.data.HotSearchResponse
 import com.jing.bilibilitv.http.data.KeywordSuggestResponse
+import com.jing.bilibilitv.http.data.KeywordSuggestResponseWrapper
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -16,7 +17,7 @@ interface SearchApi {
     @GET("/main/suggest")
     suspend fun getKeywordSuggest(
         @Query("term") term: String
-    ): Map<Int, KeywordSuggestResponse>
+    ): KeywordSuggestResponseWrapper
 
     @GET("/main/hotword")
     suspend fun getHotSearchKeyword(): HotSearchResponse

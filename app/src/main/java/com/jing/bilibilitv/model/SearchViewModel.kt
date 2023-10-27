@@ -1,5 +1,6 @@
 package com.jing.bilibilitv.model
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
@@ -75,11 +76,10 @@ class SearchViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             _keywordSuggest.emit(Resource.Loading())
             try {
-                val suggests = searchApi.getKeywordSuggest(input).let { map ->
-                    map.keys.toList().sorted().map { map[it]!! }
-                }
+                val suggests = searchApi.getKeywordSuggest(input).result.tag
                 _keywordSuggest.emit(Resource.Success(suggests))
             } catch (e: Exception) {
+                Log.e(TAG, "loadSuggestKeyword: ${e.message}", e)
                 _keywordSuggest.emit(Resource.Error("加载搜索建议失败:${e.message}", e))
             }
         }
@@ -158,5 +158,9 @@ class SearchViewModel @Inject constructor(
         }
 
 
+    }
+
+    companion object {
+        private const val TAG = "SearchViewModel"
     }
 }

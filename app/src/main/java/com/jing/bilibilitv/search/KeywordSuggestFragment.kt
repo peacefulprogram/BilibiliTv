@@ -79,7 +79,7 @@ class KeywordSuggestFragment(
                 viewModel.keywordSuggest.collectLatest { resource ->
                     when (resource) {
                         is Resource.Loading -> {}
-                        is Resource.Success -> resource.data.map { Pair(it.name, it.value) }.let {
+                        is Resource.Success -> resource.data.map { Pair(it.value, it.value) }.let {
                             if (it.isEmpty()) {
                                 viewBinding.suggestContainer.visibility = View.GONE
                             } else {
