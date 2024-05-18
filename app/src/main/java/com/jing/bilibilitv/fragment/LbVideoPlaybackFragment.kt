@@ -437,7 +437,9 @@ class LbVideoPlaybackFragment(
         }
 
         if (keyEvent.keyCode == KeyEvent.KEYCODE_MENU) {
-            openPlayListDialogAndChoose()
+            if (keyEvent.action == KeyEvent.ACTION_UP) {
+                openPlayListDialogAndChoose()
+            }
             return true
         }
         // info键控制进度条显示或者隐藏

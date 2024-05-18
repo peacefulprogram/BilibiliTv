@@ -10,18 +10,17 @@ fun getHomeGridViewKeyInterceptor(
 ): (KeyEvent, VerticalGridView) -> Boolean =
     { keyEvent, gridView ->
         var result = false
-        if (keyEvent.keyCode == KeyEvent.KEYCODE_BACK) {
+        if (keyEvent.keyCode == KeyEvent.KEYCODE_BACK && keyEvent.action == KeyEvent.ACTION_UP) {
             val tab = getSelectedTabView()
             if (tab != null) {
                 tab.requestFocus()
                 gridView.smoothScrollToPosition(0)
                 result = true
             }
-        } else if (keyEvent.keyCode == KeyEvent.KEYCODE_MENU) {
+        } else if (keyEvent.keyCode == KeyEvent.KEYCODE_MENU && keyEvent.action == KeyEvent.ACTION_UP) {
             val tab = getSelectedTabView()
             if (tab != null) {
                 tab.requestFocus()
-//                gridView.smoothScrollToPosition(0)
                 refreshData()
                 result = true
             }
